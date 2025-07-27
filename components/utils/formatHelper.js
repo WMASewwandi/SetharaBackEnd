@@ -48,4 +48,39 @@ export const formatDateWithTime = (dateStr) => {
   return `${yyyy}-${mm}-${dd}, ${hour}:${minute}${ampm}`;
 };
 
+export const convertTo24Hour = (time) => {
+  if (!time) return "";
+
+  const [t, modifier] = time.trim().split(" ");
+  if (!t || !modifier) return "";
+
+  let [hour, minute] = t.split(":");
+  hour = parseInt(hour, 10);
+
+  if (isNaN(hour) || isNaN(parseInt(minute))) return "";
+
+  if (modifier.toUpperCase() === "PM" && hour !== 12) {
+    hour += 12;
+  } else if (modifier.toUpperCase() === "AM" && hour === 12) {
+    hour = 0;
+  }
+
+  return `${hour.toString().padStart(2, "0")}:${minute}`;
+};
+
+export const convertTo12Hour = (time) => {
+  if (!time) return ""; 
+
+  const [hour, minute] = time.split(":");
+  const h = parseInt(hour, 10);
+
+  if (isNaN(h)) return "";
+
+  const suffix = h >= 12 ? "PM" : "AM";
+  const hour12 = h % 12 === 0 ? 12 : h % 12;
+
+  return `${hour12.toString().padStart(2, "0")}:${minute} ${suffix}`;
+};
+
+
 

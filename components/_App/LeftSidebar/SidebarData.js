@@ -76,6 +76,7 @@ export const getSidebarData = (IsGarmentSystem) => {
                 { title: "Cash Flow Types", path: "/master/cash-flow/", categoryId: 59, isAvailable: true },
                 { title: "Tasks", path: "/master/tasks/", categoryId: 63, isAvailable: true },
                 { title: "Packages", path: "/master/package/", categoryId: 64, isAvailable: true },
+                { title: "Time Slots", path: "/master/time-slots/", categoryId: 65, isAvailable: true },
             ],
         },
         {

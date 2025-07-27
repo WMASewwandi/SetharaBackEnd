@@ -16,8 +16,6 @@ import DeleteConfirmationById from "@/components/UIElements/Modal/DeleteConfirma
 import usePaginatedFetch from "@/components/hooks/usePaginatedFetch";
 import IsPermissionEnabled from "@/components/utils/IsPermissionEnabled";
 import AccessDenied from "@/components/UIElements/Permission/AccessDenied";
-// import AddTask from "./create";
-// import EditTask from "./edit";
 import AddPackage from "./create";
 import { formatCurrency } from "@/components/utils/formatHelper";
 import EditPackage from "./edit";
