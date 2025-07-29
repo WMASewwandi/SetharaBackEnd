@@ -169,6 +169,8 @@ export const getSidebarData = (IsGarmentSystem) => {
         subNav: [
             { title: "Reservations", path: "/reservation/reservations/", categoryId: 43, isAvailable: true },
             { title: "Gallery", path: "/reservation/gallery/", categoryId: 44, isAvailable: true },
+            { title: "Bookings", path: "/reservation/booking/", categoryId: 66, isAvailable: true },
+            { title: "Reserved Slots", path: "/reservation/reserved-slots/", categoryId: 67, isAvailable: true },
         ],
     });
     sidebarData.push({

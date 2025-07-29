@@ -26,6 +26,7 @@ import AccessDenied from "@/components/UIElements/Permission/AccessDenied";
 import IsPermissionEnabled from "@/components/utils/IsPermissionEnabled";
 import CancelConfirmationById from "./CancelConfirmationById";
 import { Catelogue } from "Base/catelogue";
+import IsAppSettingEnabled from "@/components/utils/IsAppSettingEnabled";
 
 export default function Invoice() {
   const cId = sessionStorage.getItem("category")
@@ -35,6 +36,9 @@ export default function Invoice() {
   const { data: InvoiceReportName } = GetReportSettingValueByName("Invoice");
   const { data: POSInvoiceReportName } = GetReportSettingValueByName("POSInvoice");
   const { result: shiftResult, message: shiftMessage } = useShiftCheck();
+  const { data: isBookingSystem } = IsAppSettingEnabled(
+      "IsBookingSystem"
+    );
   const {
     data: invoiceList,
     totalCount,
@@ -132,7 +136,7 @@ export default function Invoice() {
                   <TableCell>#</TableCell>
                   <TableCell>Invoice Date</TableCell>
                   <TableCell>Invoice No</TableCell>
-                  <TableCell>Warehouse</TableCell>
+                  {!isBookingSystem && (<TableCell>Warehouse</TableCell>)}
                   <TableCell>Net Total (Rs)</TableCell>
                   <TableCell>Customer</TableCell>
                   <TableCell>Remark</TableCell>
@@ -159,7 +163,7 @@ export default function Invoice() {
                         <TableCell>{index + 1}</TableCell>
                         <TableCell>{formatDate(item.documentDate)}</TableCell>
                         <TableCell>{item.documentNo}</TableCell>
-                        <TableCell>{item.warehouseName}</TableCell>
+                         {!isBookingSystem && (<TableCell>{item.warehouseName}</TableCell>)}                        
                         <TableCell>{formatCurrency(item.netTotal)}</TableCell>
                         <TableCell>{item.customerName}</TableCell>
                         <TableCell>{item.remark}</TableCell>

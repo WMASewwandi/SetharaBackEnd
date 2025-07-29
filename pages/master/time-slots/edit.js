@@ -97,7 +97,7 @@ export default function EditTimeSlot({item, fetchItems }) {
               Id: item.id,
               StartTime: convertTo24Hour(item.startTime) || "",
               EndTime: convertTo24Hour(item.endTime) || "",
-              IsActive: item.isActive || true,
+              IsActive: item.isActive,
             }}
             validationSchema={validationSchema}
             onSubmit={handleSubmit}

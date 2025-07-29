@@ -265,3 +265,38 @@ export const getStatusColor = (type) => {
       return "";
   }
 };
+
+export const getNationality = (type) => {
+  switch (type) {
+    case 1:
+      return "Sri Lankan";
+    case 2:
+      return "Other";
+    default:
+      return "";
+  }
+};
+
+export const getBookingStatus = (type) => {
+  switch (type) {
+    case 1:
+      return "Reserved";
+    case 2:
+      return "Completed";
+    case 3:
+      return "Canceled";
+    default:
+      return "";
+  }
+};
+
+export const getBookingPaymentStatus = (type) => {
+  switch (type) {
+    case 1:
+      return "Pending";
+    case 2:
+      return "Paid";
+    default:
+      return "";
+  }
+};

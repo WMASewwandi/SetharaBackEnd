@@ -1,4 +1,4 @@
-export const Catelogue = "ApexFlowInkFustion";
+export const Catelogue = "Sethara";
 export const ProjectNo = 1;
 
 //========= projects ==========

@@ -35,6 +35,7 @@ import IsAppSettingEnabled from "@/components/utils/IsAppSettingEnabled";
 import AddOutletItem from "./add-outlet";
 import AddCustomColorItem from "./add-custom-color";
 import useShiftCheck from "@/components/utils/useShiftCheck";
+import SearchPackageByName from "@/components/utils/SearchPackageByName";
 
 const InvoiceCreate = () => {
   const today = new Date();
@@ -84,6 +85,10 @@ const InvoiceCreate = () => {
   );
   const { data: AllowCostLessThanSelling } = IsAppSettingEnabled(
     "AllowCostLessThanSelling"
+  );
+
+  const { data: isBookingSystem } = IsAppSettingEnabled(
+    "IsBookingSystem"
   );
 
   const {
@@ -305,14 +310,14 @@ const InvoiceCreate = () => {
     const invoiceLines = [
       ...selectedRows.map((row, i) => ({
         DocumentNo: invNo,
-        ProductId: row.productId,
-        ProductName: row.productName,
-        ProductCode: row.productCode,
+        ProductId: isBookingSystem ? row.id : row.productId,
+        ProductName: isBookingSystem ? row.packageName : row.productName,
+        ProductCode: isBookingSystem ? row.documentNo : row.productCode,
         WarehouseId: 1,
         WarehouseCode: "WH001",
         WarehouseName: "Main Warehouse",
-        UnitPrice: row.sellingPrice,
-        CostPrice: row.costPrice,
+        UnitPrice: isBookingSystem ? row.rate : row.sellingPrice,
+        CostPrice: isBookingSystem ? row.rate : row.costPrice,
         Qty: row.quantity,
         DiscountAmount: 0.0,
         DiscountPercentage: 0.0,
@@ -469,6 +474,23 @@ const InvoiceCreate = () => {
     setOpen(false);
   };
 
+  const handleAddPackage = (item) => {
+    const newRow = {
+      ...item,
+      quantity: 1,
+      totalPrice: item.rate
+    };
+
+    setSelectedRows((prevRows) => {
+      const updatedRows = [...prevRows, newRow];
+      setTimeout(() => {
+        qtyRefs.current[updatedRows.length - 1]?.focus();
+      }, 0);
+      return updatedRows;
+    });
+    setTotal((prevTotal) => prevTotal + newRow.totalPrice);
+    setOpen(false);
+  };
 
   const handleQuantityChange = (index, newQuantity) => {
     const updatedRows = [...selectedRows];
@@ -476,22 +498,12 @@ const InvoiceCreate = () => {
     const oldTotalPrice = row.totalPrice;
 
     row.quantity = newQuantity;
-    row.totalPrice = parseFloat(row.sellingPrice) * newQuantity;
+    row.totalPrice = isBookingSystem ? parseFloat(row.rate) * newQuantity : parseFloat(row.sellingPrice) * newQuantity;
 
     setSelectedRows(updatedRows);
     setTotal((prevTotal) => prevTotal - oldTotalPrice + row.totalPrice);
   };
 
-  const handleUnitPriceChange = (index, newPrice) => {
-    const updatedRows = [...selectedRows];
-    const row = updatedRows[index];
-    const oldTotalPrice = row.totalPrice;
-
-    row.costPrice = newPrice;
-
-    setSelectedRows(updatedRows);
-    setTotal((prevTotal) => prevTotal - oldTotalPrice + row.totalPrice);
-  };
 
   const handleSellingPriceChange = (index, newPrice) => {
     const updatedRows = [...selectedRows];
@@ -752,63 +764,79 @@ const InvoiceCreate = () => {
                   />
                 </Grid>
 
-                <Grid
-                  item
-                  xs={12}
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="space-between"
-                  mt={0.5}
-                >
-                  <Typography
-                    component="label"
-                    sx={{
-                      fontWeight: "500",
-                      p: 1,
-                      fontSize: "14px",
-                      display: "block",
-                      width: "35%",
-                    }}
+                {!isBookingSystem && (
+                  <Grid
+                    item
+                    xs={12}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="space-between"
+                    mt={0.5}
                   >
-                    Salesperson
-                  </Typography>
-                  <Autocomplete
-                    sx={{ width: "60%" }}
-                    options={salesPersonList || []}
-                    getOptionLabel={(option) => option.name || ""}
-                    value={salesPerson}
-                    onChange={(event, newValue) => {
-                      setSalesPerson(newValue);
-                    }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        size="small"
-                        fullWidth
-                        placeholder="Select Salesperson"
-                        error={salesPersonError}
-                      />
-                    )}
-                  />
-                </Grid>
+                    <Typography
+                      component="label"
+                      sx={{
+                        fontWeight: "500",
+                        p: 1,
+                        fontSize: "14px",
+                        display: "block",
+                        width: "35%",
+                      }}
+                    >
+                      Salesperson
+                    </Typography>
+                    <Autocomplete
+                      sx={{ width: "60%" }}
+                      options={salesPersonList || []}
+                      getOptionLabel={(option) => option.name || ""}
+                      value={salesPerson}
+                      onChange={(event, newValue) => {
+                        setSalesPerson(newValue);
+                      }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          size="small"
+                          fullWidth
+                          placeholder="Select Salesperson"
+                          error={salesPersonError}
+                        />
+                      )}
+                    />
+                  </Grid>
+                )}
               </Grid>
             </Grid>
 
             <Grid item xs={12} mt={3}>
               <Grid item xs={12} gap={1} mt={3} mb={1} display="flex">
-                <SearchItemByName
-                  ref={searchRef}
-                  label="Search"
-                  placeholder="Search Items by name"
-                  fetchUrl={isOutlet ? `${BASE_URL}/Outlet/GetAllOutletByProductName` : `${BASE_URL}/Items/GetAllItemsWithoutZeroQty`}
-                  onSelect={(item) => {
-                    isOutlet ? handleItemStock(item) : handleCheckStockBalance(item);
-                    setTimeout(() => {
-                      const newIndex = selectedRows.length;
-                      qtyRefs.current[newIndex]?.focus();
-                    }, 100);
-                  }}
-                />
+                {isBookingSystem ?
+                  <SearchPackageByName
+                    ref={searchRef}
+                    label="Search"
+                    placeholder="Search Items by name"
+                    fetchUrl={`${BASE_URL}/Package/GetPackagesByname`}
+                    onSelect={(item) => {
+                      handleAddPackage(item);
+                      setTimeout(() => {
+                        const newIndex = selectedRows.length;
+                        qtyRefs.current[newIndex]?.focus();
+                      }, 100);
+                    }}
+                  /> : <SearchItemByName
+                    ref={searchRef}
+                    label="Search"
+                    placeholder="Search Items by name"
+                    fetchUrl={isOutlet ? `${BASE_URL}/Outlet/GetAllOutletByProductName` : `${BASE_URL}/Items/GetAllItemsWithoutZeroQty`}
+                    onSelect={(item) => {
+                      isOutlet ? handleItemStock(item) : handleCheckStockBalance(item);
+                      setTimeout(() => {
+                        const newIndex = selectedRows.length;
+                        qtyRefs.current[newIndex]?.focus();
+                      }, 100);
+                    }}
+                  />}
+
                 {IsOutletAvailable && (
                   <Button variant={isOutlet ? "contained" : "outlined"} size="small" color={isOutlet ? "warning" : "secondary"} onClick={() => { setIsOutlet(prev => !prev); setStock([]); setSelectedItem(); }}>
                     Outlet
@@ -878,7 +906,7 @@ const InvoiceCreate = () => {
                         </TableCell>
                         <TableCell sx={{ p: 1 }}>{index + 1}</TableCell>
                         <TableCell sx={{ p: 1 }} component="th" scope="row">
-                          {row.productName}
+                          {isBookingSystem ? row.packageName : row.productName}
                         </TableCell>
                         {IsBatchNumberAvailable && (
                           <TableCell sx={{ p: 1 }}>
@@ -954,7 +982,7 @@ const InvoiceCreate = () => {
                             sx={{ width: "100px" }}
                             type="number"
                             size="small"
-                            value={row.sellingPrice}
+                            value= {isBookingSystem ? row.rate : row.sellingPrice}
                             onChange={(e) => handleSellingPriceChange(index, e.target.value)}
                             onKeyDown={(e) => {
                               if (e.key === "Tab" && index === selectedRows.length - 1) {
@@ -976,7 +1004,7 @@ const InvoiceCreate = () => {
 
                     <TableRow>
                       <TableCell align="right" colSpan={
-                        6 +
+                        5 +
                         (IsBatchNumberAvailable ? 1 : 0) +
                         (IsExpireDateAvailable ? 1 : 0)
                       }>
