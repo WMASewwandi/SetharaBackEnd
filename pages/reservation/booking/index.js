@@ -20,6 +20,7 @@ import { formatDate } from "@/components/utils/formatHelper";
 import AddBooking from "./create";
 import EditBooking from "./edit";
 import CancelBookingById from "@/components/UIElements/Modal/CancelBookingById";
+import ViewDetails from "./view-details";
 
 export default function Bookings() {
   const cId = sessionStorage.getItem("category")
@@ -98,6 +99,7 @@ export default function Bookings() {
                   <TableCell>Nationality</TableCell>
                   <TableCell>Payment Method</TableCell>
                   <TableCell>Payment Status</TableCell>
+                  <TableCell>Packages</TableCell>
                   <TableCell>Status</TableCell>
                   <TableCell align="right">Action</TableCell>
                 </TableRow>
@@ -105,7 +107,7 @@ export default function Bookings() {
               <TableBody>
                 {bookingList.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={10}>
+                    <TableCell colSpan={11}>
                       <Typography color="error">No Bookings Available</Typography>
                     </TableCell>
                   </TableRow>
@@ -121,6 +123,9 @@ export default function Bookings() {
                       <TableCell>{getPaymentMethods(item.paymentMethod)}</TableCell>
                       <TableCell>
                         <Chip size="small" color={item.paymentStatus === 2 ? "primary" : "default"} label={getBookingPaymentStatus(item.paymentStatus)} />
+                      </TableCell>
+                      <TableCell>
+                        <ViewDetails id={item.id}/>
                       </TableCell>
                       <TableCell>
                         <Chip size="small" color={item.bookingStatus === 2 ? "warning" : (item.bookingStatus === 3 ? "error" : "success")} label={getBookingStatus(item.bookingStatus)} />
