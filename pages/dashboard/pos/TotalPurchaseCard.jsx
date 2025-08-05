@@ -2,16 +2,11 @@ import React from 'react';
 import Card from '@mui/material/Card';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import { formatCurrency } from '@/components/utils/formatHelper';
 
-const formatCurrency = (value) => {
-  return `Rs ${new Intl.NumberFormat('en-IN', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(value)}`;
-};
 
-const TotalPurchaseCard = () => {
-  const totalPurchases = 750000.50;
+const TotalPurchaseCard = ({purchase}) => {
+  const totalPurchases = purchase;
   
   return (
     <Card

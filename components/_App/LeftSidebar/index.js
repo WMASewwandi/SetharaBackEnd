@@ -121,7 +121,7 @@ const Sidebar = ({ toogleActive }) => {
                 justifyContent: 'space-between'
               }}
             >
-              <Link href='/dashboard/main'>
+              <Link href={ProjectNo === 2 ? '/dashboard/reservation': '/'}>
                 {ProjectNo === 1 ?
                   <>
                     <img
@@ -142,9 +142,6 @@ const Sidebar = ({ toogleActive }) => {
                       className='white-logo'
                     />
                   </>}
-
-
-
               </Link>
 
               <IconButton

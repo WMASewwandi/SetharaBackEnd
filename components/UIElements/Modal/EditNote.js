@@ -95,8 +95,10 @@ export default function EditNote({ date, note, fetchItems }) {
       if (data.statusCode === 200) {
         toast.success(data.message);
         setOpen(false);
-        if (fetchItems) {
+        if (fetchItems && date) {
           fetchItems(date);
+        } else {
+          fetchItems();
         }
       } else {
         toast.error(data.message);
@@ -148,159 +150,160 @@ export default function EditNote({ date, note, fetchItems }) {
                 >
                   {({ values, handleChange }) => (
                     <Form>
-                      <Box sx={{maxHeight: '50vh',overflowY: 'scroll'}}>
+                      <Box sx={{ maxHeight: '50vh', overflowY: 'scroll' }}>
                         <Grid container spacing={1}>
-                        <Grid item xs={12} lg={6} mt={2}>
-                          <Typography>Wedding Date</Typography>
-                          <Field
-                            as={TextField}
-                            name="ReservationDate"
-                            type="date"
-                            size="small"
-                            fullWidth
-                          />
-                        </Grid>
-                        <Grid item xs={12} lg={6} mt={2}>
-                          <Typography>Event Type</Typography>
-                          <FormControl fullWidth>
-                            <Field
-                              as={Select}
-                              name="ReservationFunctionType"
-                              size="small"
-                              value={values.ReservationFunctionType}
-                              onChange={handleChange}
-                            >
-                              <MenuItem value={1}>Wedding</MenuItem>
-                              <MenuItem value={2}>Home Coming</MenuItem>
-                              <MenuItem value={3}>Wedding & Home Coming</MenuItem>
-                              <MenuItem value={4}>Noramal Dressing</MenuItem>
-                              <MenuItem value={5}>Photo Shoot</MenuItem>
-                              <MenuItem value={6}>Outfit Only</MenuItem>
-                            </Field>
-                          </FormControl>
-                        </Grid>
-                        <Grid item xs={12} lg={6} mt={2}>
-                          <Typography>Name</Typography>
-                          <Field
-                            as={TextField}
-                            name="CustomerName"
-                            type="text"
-                            size="small"
-                            fullWidth
-                          />
-                        </Grid>
-                        <Grid item xs={12} lg={6} mt={2}>
-                          <Typography>Phone Number</Typography>
-                          <Field
-                            as={TextField}
-                            name="MobileNo"
-                            type="text"
-                            size="small"
-                            fullWidth
-                          />
-                        </Grid>
-                        <Grid item xs={12} lg={6} mt={2}>
-                          <Typography>NIC/Passport No</Typography>
-                          <Field
-                            as={TextField}
-                            name="NIC"
-                            type="text"
-                            size="small"
-                            fullWidth
-                          />
-                        </Grid>
-                        <Grid item xs={12} lg={6} mt={2}>
-                          <Typography>Preferred Time</Typography>
-                          <FormControl fullWidth>
-                            <Field
-                              as={Select}
-                              name="PreferdTime"
-                              size="small"
-                              value={values.PreferdTime}
-                              onChange={handleChange}
-                            >
-                              <MenuItem value={1}>Morning</MenuItem>
-                              <MenuItem value={2}>Evening</MenuItem>
-                            </Field>
-                          </FormControl>
-                        </Grid>
-                        <Grid item xs={12} lg={6} mt={2}>
-                          <Typography>Bridal Type</Typography>
-                          <FormControl fullWidth>
-                            <Field
-                              as={Select}
-                              name="BridleType"
-                              size="small"
-                              value={values.BridleType}
-                              onChange={handleChange}
-                            >
-                              <MenuItem value={1}>Kandyan</MenuItem>
-                              <MenuItem value={2}>Indian</MenuItem>
-                              <MenuItem value={3}>Western</MenuItem>
-                              <MenuItem value={4}>Hindu</MenuItem>
-                            </Field>
-                          </FormControl>
-                        </Grid>
-                        <Grid item xs={12} lg={6} mt={2}>
-                          <Typography>Location</Typography>
-                          <FormControl fullWidth>
-                            <Field
-                              as={Select}
-                              name="Location"
-                              size="small"
-                              value={values.Location}
-                              onChange={handleChange}
-                            >
-                              <MenuItem value={1}>Studio</MenuItem>
-                              <MenuItem value={2}>Away</MenuItem>
-                              <MenuItem value={3}>Overseas</MenuItem>
-                            </Field>
-                          </FormControl>
-                        </Grid>
-                        <Grid item xs={12} mt={2}>
-                          <Typography>Description</Typography>
-                          <Field
-                            as={TextField}
-                            name="Description"
-                            type="text"
-                            size="small"
-                            fullWidth
-                          />
-                        </Grid>
-                        <Grid item xs={12}>
-                          <FormControlLabel
-                            control={
-                              <Field
-                                as={Checkbox}
-                                name="IsExpire"
-                                checked={values.IsExpire}
-                                onChange={(e) => {
-                                  handleChange(e);
-                                  setShowExpDate(e.target.checked);
-                                }}
-                              />
-                            }
-                            label="isExpiring"
-                          />
-                        </Grid>
-                        {showExpDate && (
-                          <Grid item lg={6} xs={12} mt={2}>
-                            <Typography>Exp Date</Typography>
+                          <Grid item xs={12} lg={6} mt={2}>
+                            <Typography>Wedding Date</Typography>
                             <Field
                               as={TextField}
-                              name="ReservationExpiryDate"
+                              name="ReservationDate"
                               type="date"
                               size="small"
                               fullWidth
-                              inputProps={{
-                                min: new Date(Date.now() + 86400000)
-                                  .toISOString()
-                                  .split("T")[0],
-                              }}
                             />
                           </Grid>
-                        )}
-                      </Grid>
+                          <Grid item xs={12} lg={6} mt={2}>
+                            <Typography>Event Type</Typography>
+                            <FormControl fullWidth>
+                              <Field
+                                as={Select}
+                                name="ReservationFunctionType"
+                                size="small"
+                                value={values.ReservationFunctionType}
+                                onChange={handleChange}
+                              >
+                                <MenuItem value={1}>Wedding</MenuItem>
+                                <MenuItem value={2}>Home Coming</MenuItem>
+                                <MenuItem value={3}>Wedding & Home Coming</MenuItem>
+                                <MenuItem value={4}>Normal Dressing</MenuItem>
+                                <MenuItem value={5}>Photo Shoot</MenuItem>
+                                <MenuItem value={6}>Outfit Only</MenuItem>
+                                <MenuItem value={7}>Engagement</MenuItem>
+                              </Field>
+                            </FormControl>
+                          </Grid>
+                          <Grid item xs={12} lg={6} mt={2}>
+                            <Typography>Name</Typography>
+                            <Field
+                              as={TextField}
+                              name="CustomerName"
+                              type="text"
+                              size="small"
+                              fullWidth
+                            />
+                          </Grid>
+                          <Grid item xs={12} lg={6} mt={2}>
+                            <Typography>Phone Number</Typography>
+                            <Field
+                              as={TextField}
+                              name="MobileNo"
+                              type="text"
+                              size="small"
+                              fullWidth
+                            />
+                          </Grid>
+                          <Grid item xs={12} lg={6} mt={2}>
+                            <Typography>NIC/Passport No</Typography>
+                            <Field
+                              as={TextField}
+                              name="NIC"
+                              type="text"
+                              size="small"
+                              fullWidth
+                            />
+                          </Grid>
+                          <Grid item xs={12} lg={6} mt={2}>
+                            <Typography>Preferred Time</Typography>
+                            <FormControl fullWidth>
+                              <Field
+                                as={Select}
+                                name="PreferdTime"
+                                size="small"
+                                value={values.PreferdTime}
+                                onChange={handleChange}
+                              >
+                                <MenuItem value={1}>Morning</MenuItem>
+                                <MenuItem value={2}>Evening</MenuItem>
+                              </Field>
+                            </FormControl>
+                          </Grid>
+                          <Grid item xs={12} lg={6} mt={2}>
+                            <Typography>Bridal Type</Typography>
+                            <FormControl fullWidth>
+                              <Field
+                                as={Select}
+                                name="BridleType"
+                                size="small"
+                                value={values.BridleType}
+                                onChange={handleChange}
+                              >
+                                <MenuItem value={1}>Kandyan</MenuItem>
+                                <MenuItem value={2}>Indian</MenuItem>
+                                <MenuItem value={3}>Western</MenuItem>
+                                <MenuItem value={4}>Hindu</MenuItem>
+                              </Field>
+                            </FormControl>
+                          </Grid>
+                          <Grid item xs={12} lg={6} mt={2}>
+                            <Typography>Location</Typography>
+                            <FormControl fullWidth>
+                              <Field
+                                as={Select}
+                                name="Location"
+                                size="small"
+                                value={values.Location}
+                                onChange={handleChange}
+                              >
+                                <MenuItem value={1}>Studio</MenuItem>
+                                <MenuItem value={2}>Away</MenuItem>
+                                <MenuItem value={3}>Overseas</MenuItem>
+                              </Field>
+                            </FormControl>
+                          </Grid>
+                          <Grid item xs={12} mt={2}>
+                            <Typography>Description</Typography>
+                            <Field
+                              as={TextField}
+                              name="Description"
+                              type="text"
+                              size="small"
+                              fullWidth
+                            />
+                          </Grid>
+                          <Grid item xs={12}>
+                            <FormControlLabel
+                              control={
+                                <Field
+                                  as={Checkbox}
+                                  name="IsExpire"
+                                  checked={values.IsExpire}
+                                  onChange={(e) => {
+                                    handleChange(e);
+                                    setShowExpDate(e.target.checked);
+                                  }}
+                                />
+                              }
+                              label="isExpiring"
+                            />
+                          </Grid>
+                          {showExpDate && (
+                            <Grid item lg={6} xs={12} mt={2}>
+                              <Typography>Exp Date</Typography>
+                              <Field
+                                as={TextField}
+                                name="ReservationExpiryDate"
+                                type="date"
+                                size="small"
+                                fullWidth
+                                inputProps={{
+                                  min: new Date(Date.now() + 86400000)
+                                    .toISOString()
+                                    .split("T")[0],
+                                }}
+                              />
+                            </Grid>
+                          )}
+                        </Grid>
                       </Box>
                       <Grid container spacing={1}>
                         <Grid

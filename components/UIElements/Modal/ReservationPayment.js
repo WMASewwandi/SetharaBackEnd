@@ -262,9 +262,10 @@ export default function ReservationPayment({ fetchItems }) {
                     <MenuItem value={1}>Wedding</MenuItem>
                     <MenuItem value={2}>Home Coming</MenuItem>
                     <MenuItem value={3}>Wedding & Home Coming</MenuItem>
-                    <MenuItem value={4}>Noramal Dressing</MenuItem>
+                    <MenuItem value={4}>Normal Dressing</MenuItem>
                     <MenuItem value={5}>Photo Shoot</MenuItem>
                     <MenuItem value={6}>Outfit Only</MenuItem>
+                    <MenuItem value={7}>Engagement</MenuItem>
                   </TextField>
                 </Grid>
                 <Grid item xs={12} lg={6}>

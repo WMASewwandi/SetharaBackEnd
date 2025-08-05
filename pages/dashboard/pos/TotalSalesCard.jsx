@@ -14,7 +14,7 @@ const formatPercentage = (value) => {
   return `${value.toFixed(2)}%`;
 };
 
-const TotalSalesCard = () => {
+const TotalSalesCard = ({amount}) => {
   const totalSales = 2250000.00;
   const profit = 675000.00; // Assuming a profit value
   const profitMargin = (profit / totalSales) * 100; // Calculate profit margin as percentage

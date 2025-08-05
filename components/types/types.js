@@ -97,6 +97,8 @@ export const getEventType = (type) => {
       return "P/S";
     case 6:
       return "Outfit Only";
+    case 7:
+      return "Engagement";
     default:
       return "N/A";
   }

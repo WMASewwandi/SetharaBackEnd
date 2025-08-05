@@ -75,8 +75,8 @@ export const getSidebarData = (IsGarmentSystem) => {
                 { title: "Bank", path: "/master/bank/", categoryId: 15, isAvailable: true },
                 { title: "Cash Flow Types", path: "/master/cash-flow/", categoryId: 59, isAvailable: true },
                 { title: "Tasks", path: "/master/tasks/", categoryId: 63, isAvailable: true },
-                { title: "Packages", path: "/master/package/", categoryId: 64, isAvailable: true },
-                { title: "Time Slots", path: "/master/time-slots/", categoryId: 65, isAvailable: true },
+                { title: "Packages", path: "/master/package/", categoryId: 65, isAvailable: true },
+                { title: "Time Slots", path: "/master/time-slots/", categoryId: 66, isAvailable: true },
             ],
         },
         {
@@ -125,6 +125,7 @@ export const getSidebarData = (IsGarmentSystem) => {
                 { title: "Outlet Note", path: "/inventory/outlet-note/", categoryId: 20, isAvailable: true },
                 { title: "Stock Dispatch", path: "/inventory/stock-dispatch/", categoryId: 21, isAvailable: true },
                 { title: "Stock Adjustment", path: "/inventory/stock-adjustment/", categoryId: 40, isAvailable: true },
+                { title: "Stock Transfer Note", path: "/inventory/stock-transfer/", categoryId: 69, isAvailable: true },
             ],
         },
         {
@@ -167,10 +168,11 @@ export const getSidebarData = (IsGarmentSystem) => {
         ModuleId: 11,
         IsAvailable: true,
         subNav: [
+            { title: "Pencil Notes", path: "/reservation/notes/", categoryId: 64, isAvailable: true },
             { title: "Reservations", path: "/reservation/reservations/", categoryId: 43, isAvailable: true },
             { title: "Gallery", path: "/reservation/gallery/", categoryId: 44, isAvailable: true },
-            { title: "Bookings", path: "/reservation/booking/", categoryId: 66, isAvailable: true },
-            { title: "Reserved Slots", path: "/reservation/reserved-slots/", categoryId: 67, isAvailable: true },
+            { title: "Bookings", path: "/reservation/booking/", categoryId: 67, isAvailable: true },
+            { title: "Reserved Slots", path: "/reservation/reserved-slots/", categoryId: 68, isAvailable: true },
         ],
     });
     sidebarData.push({

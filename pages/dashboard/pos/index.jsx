@@ -11,119 +11,140 @@ import StockValueCard from "./StockValueCard";
 import TotalOutstandingCard from "./TotalOutstandingCard";
 import TotalPurchaseCard from "./TotalPurchaseCard";
 import TotalSalesCard from "./TotalSalesCard";
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { TextField } from '@mui/material';
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { TextField } from "@mui/material";
+import BASE_URL from "Base/api";
+import { useEffect } from "react";
+import { formatCurrency, formatDate } from "@/components/utils/formatHelper";
 
-// Utility function to format currency
-const formatCurrency = (value) => {
-  return `Rs ${new Intl.NumberFormat("en-IN", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(value)}`;
-};
 
 const Index = () => {
-  // Dummy data for pos
-  const pos = {
-    Cash: 150000,
-    Card: 250000,
-    BankTransfer: 100000,
-    Cheque: 50000,
+  const today = new Date();
+const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+const [features, setFeatures] = useState({});
+const [fromDate, setFromDate] = useState(firstDayOfMonth.toISOString().split('T')[0]);
+const [toDate, setToDate] = useState(lastDayOfMonth.toISOString().split('T')[0]);
+
+  const [warehouse, setWarehouse] = useState(0);
+
+  const fetchFeatures = async (startDate, endDate, warehouseId) => {
+    try {
+      const response = await fetch(
+        `${BASE_URL}/Dashboard/POSDashboardCardSummaryByDateRange?startDate=${startDate}&endDate=${endDate}&warehouseId=${warehouseId}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch");
+      }
+
+      const data = await response.json();
+      setFeatures(data.result);
+    } catch (error) {
+      console.error("Error fetching:", error);
+    }
   };
 
-  const [dateRange, setDateRange] = useState({
-    startDate: new Date(),
-    endDate: new Date(),
-  });
+  useEffect(() => {
+    fetchFeatures(fromDate, toDate, warehouse);
+  }, []);
+
 
   const handleStartDateChange = (newValue) => {
-    setDateRange(prev => ({
-      ...prev,
-      startDate: newValue
-    }));
+    const formattedDate = formatDate(newValue);
+    setFromDate(formattedDate);
+    fetchFeatures(formattedDate, toDate, warehouse);
   };
 
   const handleEndDateChange = (newValue) => {
-    setDateRange(prev => ({
-      ...prev,
-      endDate: newValue
-    }));
+    const formattedDate = formatDate(newValue);
+    setToDate(formattedDate);
+    fetchFeatures(fromDate, formattedDate, warehouse);
   };
+
 
   const posData = [
     {
       id: "1",
       subTitle: "Cash Payments",
-      title: formatCurrency(pos.Cash ? pos.Cash : 0),
+      title: formatCurrency(features.cashAmount),
       iconName: "ri-wallet-line",
     },
     {
       id: "2",
       subTitle: "Card Payments",
-      title: formatCurrency(pos.Card ? pos.Card : 0),
+      title: formatCurrency(features.cardAmount),
       iconName: "ri-bank-card-line",
     },
     {
       id: "3",
       subTitle: "Bank Transfers",
-      title: formatCurrency(pos.BankTransfer ? pos.BankTransfer : 0),
+      title: formatCurrency(features.bankAmount),
       iconName: "ri-bank-line",
     },
     {
       id: "4",
       subTitle: "Cheque",
-      title: formatCurrency(pos.Cheque ? pos.Cheque : 0),
+      title: formatCurrency(features.chequeAmount),
       iconName: "ri-file-paper-line",
     },
   ];
 
+  const handleSetValue = (value) => {
+    setWarehouse(value);
+    fetchFeatures(fromDate, toDate, value);
+  };
+
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        mb: 2,
-        flexWrap: 'wrap',
-        gap: 2
-      }}>
-        <Outlet />
-        <Box sx={{ 
-          display: 'flex', 
-          alignItems: 'center', 
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 2,
+          flexWrap: "wrap",
           gap: 2,
-          flexWrap: 'wrap' 
-        }}>
+        }}
+      >
+        <Outlet onChangeWarehouse={handleSetValue} />
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 2,
+            flexWrap: "wrap",
+          }}
+        >
           <DatePicker
             label="From Date"
-            value={dateRange.startDate}
+            value={fromDate}
             onChange={handleStartDateChange}
             renderInput={(params) => (
-              <TextField 
-                {...params} 
-                size="small" 
-                sx={{ width: '160px' }} 
-              />
+              <TextField {...params} size="small" sx={{ width: "160px" }} />
             )}
           />
           <DatePicker
             label="To Date"
-            value={dateRange.endDate}
+            value={toDate}
             onChange={handleEndDateChange}
-            minDate={dateRange.startDate}
             renderInput={(params) => (
-              <TextField 
-                {...params} 
-                size="small" 
-                sx={{ width: '160px' }} 
-              />
+              <TextField {...params} size="small" sx={{ width: "160px" }} />
             )}
           />
         </Box>
       </Box>
-      
+
       <Grid
         container
         justifyContent="center"
@@ -186,26 +207,28 @@ const Index = () => {
         {/* Sales Section */}
         <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
           <Sales />
-          
+
           {/* Financial Summary Cards After Sales */}
           <Grid container spacing={2}>
             {/* First Row */}
             <Grid container item spacing={2}>
               <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
-                <TotalSalesCard />
+                <TotalSalesCard amount={features.totalSales} />
               </Grid>
               <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
-                <TotalOutstandingCard />
+                <TotalOutstandingCard
+                  outStandingFeatures={features}
+                />
               </Grid>
             </Grid>
-            
+
             {/* Second Row */}
             <Grid container item spacing={2}>
               <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
-                <TotalPurchaseCard />
+                <TotalPurchaseCard purchase={features.totalPurchase} />
               </Grid>
               <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
-                <StockValueCard />
+                <StockValueCard stock={features.stock} />
               </Grid>
             </Grid>
           </Grid>

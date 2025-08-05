@@ -142,6 +142,7 @@ export default function Reservation() {
                   <TableCell>Wedding Date</TableCell>
                   <TableCell>Event Type</TableCell>
                   <TableCell>Name</TableCell>
+                  <TableCell>Name of Groom</TableCell>
                   <TableCell>NIC/Passport No</TableCell>
                   <TableCell>Phone Number</TableCell>
                   <TableCell>Preferd Time</TableCell>
@@ -157,7 +158,7 @@ export default function Reservation() {
               <TableBody>
                 {filteredData.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={15} align="center">
+                    <TableCell colSpan={16} align="center">
                       <Typography color="error">No Reservations Available</Typography>
                     </TableCell>
                   </TableRow>
@@ -168,6 +169,7 @@ export default function Reservation() {
                       <TableCell>{formatDate(reservation.reservationDate)}</TableCell>
                       <TableCell>{getEventType(reservation.reservationFunctionType)}</TableCell>
                       <TableCell>{reservation.customerName}</TableCell>
+                      <TableCell>{reservation.groomName}</TableCell>
                       <TableCell>{reservation.nic}</TableCell>
                       <TableCell>
                         {reservation.mobileNo}

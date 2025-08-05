@@ -2,17 +2,10 @@ import React from 'react';
 import Card from '@mui/material/Card';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-
-const formatCurrency = (value) => {
-  return `Rs ${new Intl.NumberFormat('en-IN', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(value)}`;
-};
-
-const StockValueCard = () => {
-  const stockValue = 1250000.75;
+import { formatCurrency } from '@/components/utils/formatHelper';
   
+  const StockValueCard = ({stock}) => {
+    console.log(stock);
   return (
     <Card
       sx={{
@@ -55,7 +48,7 @@ const StockValueCard = () => {
               variant="h1"
               sx={{ fontSize: 25, fontWeight: 700, marginTop: '4px' }}
             >
-              {formatCurrency(stockValue)}
+              {formatCurrency(stock)}
             </Typography>
           </Box>
         </Box>

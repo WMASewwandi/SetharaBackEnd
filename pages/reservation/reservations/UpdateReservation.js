@@ -288,6 +288,7 @@ export default function UpdateReservation({ reservation, fetchItems }) {
       ReservationFunctionType: values.ReservationFunctionType,
       ReservationDate: values.ReservationDate,
       CustomerName: values.CustomerName,
+      GroomName: values.GroomName,
       Description: reservation.description,
       MobileNo: values.MobileNo.toString(),
       NIC: values.NIC.toString(),
@@ -411,6 +412,7 @@ export default function UpdateReservation({ reservation, fetchItems }) {
                 reservation.reservationFunctionType || null,
               ReservationDate: reservation?.reservationDate || "",
               CustomerName: reservation?.customerName || "",
+              GroomName: reservation?.groomName || "",
               Description: reservation?.description || "",
               MobileNo: reservation?.mobileNo || "",
               EmergencyContactNo: reservation?.emergencyContactNo || "",
@@ -540,9 +542,10 @@ export default function UpdateReservation({ reservation, fetchItems }) {
                               <MenuItem value={1}>Wedding</MenuItem>
                               <MenuItem value={2}>Home Coming</MenuItem>
                               <MenuItem value={3}>Wedding & Home Coming</MenuItem>
-                              <MenuItem value={4}>Noramal Dressing</MenuItem>
+                              <MenuItem value={4}>Normal Dressing</MenuItem>
                               <MenuItem value={5}>Photo Shoot</MenuItem>
                               <MenuItem value={6}>Outfit Only</MenuItem>
+                              <MenuItem value={7}>Engagement</MenuItem>
                             </Field>
                           </FormControl>
                         </Grid>
@@ -554,6 +557,15 @@ export default function UpdateReservation({ reservation, fetchItems }) {
                             value={values.CustomerName}
                             fullWidth
                             name="CustomerName"
+                          />
+                        </Grid>
+                        <Grid item xs={12} lg={6} mb={1}>
+                          <Typography>Name of Groom</Typography>
+                          <Field
+                            as={TextField}
+                            value={values.GroomName}
+                            fullWidth
+                            name="GroomName"
                           />
                         </Grid>
                         <Grid item xs={12} lg={6} mb={1}>

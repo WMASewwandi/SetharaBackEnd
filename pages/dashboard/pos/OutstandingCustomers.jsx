@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Typography } from "@mui/material";
 import Card from "@mui/material/Card";
 import Table from "@mui/material/Table";
@@ -9,46 +9,35 @@ import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { formatCurrency } from "@/components/utils/formatHelper";
+import useApi from "@/components/utils/useApi";
 
-const OutstandingCustomers = ({ outstandingCustomers = [] }) => {
-  // Dummy data
-  const dummyData = [
-    { customerName: "ABC Electronics Ltd", totalOutstanding: 125000, task: "1" },
-    { customerName: "XYZ Trading Co", totalOutstanding: 89500, task: "2" },
-    { customerName: "Green Valley Stores", totalOutstanding: 67800, task: "3" },
-    { customerName: "Metro Hardware", totalOutstanding: 156700, task: "4" },
-    { customerName: "Sunrise Enterprises", totalOutstanding: 43200, task: "5" },
-    { customerName: "Blue Ocean Imports", totalOutstanding: 198400, task: "6" },
-    { customerName: "Golden Gate Solutions", totalOutstanding: 78300, task: "7" },
-    { customerName: "Prime Tech Services", totalOutstanding: 112600, task: "8" }
-  ];
+const OutstandingCustomers = () => {
+  const [customersOutstanding, setCustomersOutstanding] = useState([]);
+  const { data: customerOutstandingList } = useApi(
+    "/Outstanding/GetAllOutstandingsGroupedByCustomer"
+  );
 
-  // Use dummy data if no real data is provided
-  const dataToUse = outstandingCustomers.length > 0 ? outstandingCustomers : dummyData;
+  
+  useEffect(() => {
+    if (customerOutstandingList) {
+      setCustomersOutstanding(customerOutstandingList);
+    }
+  }, [customerOutstandingList]);
 
-  // Add safety check for empty or undefined array
-  if (!dataToUse || dataToUse.length === 0) {
-    return (
-      <Card sx={{ boxShadow: "none", borderRadius: "10px", p: "25px 20px 15px", mb: "15px" }}>
-        <Box sx={{ paddingBottom: "10px" }}>
-          <Typography as="h3" sx={{ fontSize: 18, fontWeight: 500 }}>
-            Customers Outstanding
-          </Typography>
-        </Box>
-        <Typography sx={{ padding: "20px", textAlign: "center", color: "#666" }}>
-          No outstanding customers data available
-        </Typography>
-      </Card>
-    );
-  }
-
-  const totalOutstandingSum = dataToUse.reduce(
-    (sum, row) => sum + Number(row.totalOutstanding || 0),
+  const totalOutstandingSum = customersOutstanding.reduce(
+    (sum, customer) => sum + Number(customer.totalOutstanding || 0),
     0
   );
 
   return (
-    <Card sx={{ boxShadow: "none", borderRadius: "10px", p: "25px 20px 15px", mb: "15px" }}>
+    <Card
+      sx={{
+        boxShadow: "none",
+        borderRadius: "10px",
+        p: "25px 20px 15px",
+        mb: "15px",
+      }}
+    >
       <Box sx={{ paddingBottom: "10px" }}>
         <Typography as="h3" sx={{ fontSize: 18, fontWeight: 500 }}>
           Customers Outstanding
@@ -61,7 +50,7 @@ const OutstandingCustomers = ({ outstandingCustomers = [] }) => {
           boxShadow: "none",
           maxHeight: "50vh",
           overflowY: "auto",
-          height: 'auto'
+          height: "auto",
         }}
       >
         <Table
@@ -71,26 +60,64 @@ const OutstandingCustomers = ({ outstandingCustomers = [] }) => {
         >
           <TableHead sx={{ background: "#F7FAFF" }}>
             <TableRow>
-              <TableCell sx={{ borderBottom: "1px solid #F7FAFF", fontSize: "13.5px", padding: "15px 10px" }}>
+              <TableCell
+                sx={{
+                  borderBottom: "1px solid #F7FAFF",
+                  fontSize: "13.5px",
+                  padding: "15px 10px",
+                }}
+              >
                 Customer Name
               </TableCell>
-              <TableCell sx={{ borderBottom: "1px solid #F7FAFF", fontSize: "13.5px", padding: "15px 10px" }}>
+              <TableCell
+                sx={{
+                  borderBottom: "1px solid #F7FAFF",
+                  fontSize: "13.5px",
+                  padding: "15px 10px",
+                }}
+              >
                 Total Outstanding Amount
               </TableCell>
             </TableRow>
           </TableHead>
 
           <TableBody>
-            {dataToUse.map((row, index) => (
-              <TableRow key={row.task || index}>
-                <TableCell sx={{ fontWeight: "500", fontSize: "13px", borderBottom: "1px solid #F7FAFF", color: "#260944", padding: "9px 10px" }}>
-                  {row.customerName || 'N/A'}
-                </TableCell>
-                <TableCell sx={{ fontWeight: 500, borderBottom: "1px solid #F7FAFF", fontSize: "12px", padding: "9px 10px" }}>
-                  Rs. {formatCurrency(row.totalOutstanding || 0)}
+            {customersOutstanding.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={2}>
+                  <Typography variant="h6" color="error">
+                    No outstanding customer data available.
+                  </Typography>
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              customersOutstanding.map((customer, index) => (
+                <TableRow key={index}>
+                  <TableCell
+                    sx={{
+                      fontWeight: "500",
+                      fontSize: "13px",
+                      borderBottom: "1px solid #F7FAFF",
+                      color: "#260944",
+                      padding: "9px 10px",
+                    }}
+                  >
+                    {customer.customerName || "N/A"}
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      fontWeight: 500,
+                      borderBottom: "1px solid #F7FAFF",
+                      fontSize: "12px",
+                      padding: "9px 10px",
+                    }}
+                  >
+                    Rs. {formatCurrency(customer.totalOutstanding || 0)}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+            {customersOutstanding.length > 0 && (
             <TableRow>
               <TableCell sx={{ fontWeight: 600, padding: "10px" }}>
                 Total
@@ -99,6 +126,7 @@ const OutstandingCustomers = ({ outstandingCustomers = [] }) => {
                 Rs. {formatCurrency(totalOutstandingSum)}
               </TableCell>
             </TableRow>
+            )}
           </TableBody>
         </Table>
       </TableContainer>

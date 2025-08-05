@@ -1,141 +1,174 @@
 import React, { useState, useEffect } from "react";
-import {
-  Box,
-  Typography,
-  Paper,
-  Grid,
-  useTheme,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  TextField,
-  Stack,
-} from "@mui/material";
+import { Box, Typography, Paper, Grid, useTheme, FormControl, InputLabel, Select, MenuItem, TextField, Stack } from "@mui/material";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import {
-  ComposedChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  Line,
-} from "recharts";
+import { ComposedChart,Bar,XAxis,YAxis,CartesianGrid,Tooltip,Legend,ResponsiveContainer,Line } from "recharts";
+import { formatDate } from "@/components/utils/formatHelper";
+import BASE_URL from "Base/api";
 
-// Dummy data
-const generateDailyData = (date) => {
-  const days = [];
-  const startDate = new Date(date);
-  startDate.setDate(startDate.getDate() - 6); // Last 7 days
 
-  for (let i = 0; i < 7; i++) {
-    const currentDate = new Date(startDate);
-    currentDate.setDate(startDate.getDate() + i);
+const generateDailyData = (start, end) => {
+  const data = [];
+  let current = new Date(start);
+
+  while (current <= end) {
     const sales = 15000 + Math.random() * 20000;
     const profit = sales * (0.3 + Math.random() * 0.1);
     const margin = (profit / sales) * 100;
-    days.push({
-      name: currentDate.toLocaleDateString("en-US", { weekday: "short" }),
+    data.push({
+      name: current.toLocaleDateString("en-US", { month: 'short', day: 'numeric' }),
       sales: Math.round(sales),
       profit: Math.round(profit),
       margin: parseFloat(margin.toFixed(1)),
     });
+    current.setDate(current.getDate() + 1);
   }
-  return days;
+  return data;
 };
 
-const generateMonthlyData = (month) => {
-  const months = [];
-  const startMonth = new Date(month);
-  startMonth.setMonth(startMonth.getMonth() - 5); // Last 6 months
+const generateMonthlyData = (month, years) => {
+  const data = [];
+  const currentYear = new Date().getFullYear();
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-  for (let i = 0; i < 6; i++) {
-    const currentMonth = new Date(startMonth);
-    currentMonth.setMonth(startMonth.getMonth() + i);
+  for (let i = 0; i < years; i++) {
+    const year = currentYear - i;
     const sales = 80000 + Math.random() * 100000;
     const profit = sales * (0.3 + Math.random() * 0.1);
     const margin = (profit / sales) * 100;
-    months.push({
-      name: currentMonth.toLocaleDateString("en-US", { month: "short" }),
+
+    data.push({
+      name: `${monthNames[month]} '${year.toString().slice(-2)}`,
       sales: Math.round(sales),
       profit: Math.round(profit),
       margin: parseFloat(margin.toFixed(1)),
     });
   }
-  return months;
+  return data.reverse();
 };
 
-const generateYearlyData = (year) => {
-  const years = [];
-  const startYear = year.getFullYear() - 4; // Last 5 years
+const generateYearlyData = () => {
+  const data = [];
+  const endYear = new Date().getFullYear();
+  const startYear = endYear - 9; 
 
-  for (let i = 0; i < 5; i++) {
-    const currentYear = startYear + i;
+  for (let currentYear = startYear; currentYear <= endYear; currentYear++) {
     const sales = 1000000 + Math.random() * 1000000;
     const profit = sales * (0.3 + Math.random() * 0.1);
     const margin = (profit / sales) * 100;
-    years.push({
+    data.push({
       name: currentYear.toString(),
       sales: Math.round(sales),
       profit: Math.round(profit),
       margin: parseFloat(margin.toFixed(1)),
     });
   }
-  return years;
+  return data;
 };
+
 
 const Sales = () => {
   const theme = useTheme();
-  const [timeFrame, setTimeFrame] = useState("daily");
+  const [timeFrame, setTimeFrame] = useState("monthly");
   const [chartData, setChartData] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [selectedMonth, setSelectedMonth] = useState(new Date());
-  const [selectedYear, setSelectedYear] = useState(new Date());
 
+  // --- State for Daily view ---
+  const initialStartDate = new Date();
+  initialStartDate.setDate(initialStartDate.getDate() - 6);
+  const [startDate, setStartDate] = useState(initialStartDate);
+  const [endDate, setEndDate] = useState(new Date());
+
+  // --- State for Monthly view ---
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+  const [yearCount, setYearCount] = useState(2);
+
+  const [list, setList] = useState([]);
+
+const handleGetData = (value)=>{
+if (value===1) { 
+  var fromDate = formatDate(startDate);
+  var toDate = formatDate(endDate);
+  fetchSalesAndProfit(`GetPOSSalesAndProfitDailySummaryAsync?startDate=${fromDate}&endDate=${toDate}`);
+  
+} else if (value===2){
+  var month = selectedMonth + 1;
+  fetchSalesAndProfit(`GetPOSSalesAndProfitMonthlySummaryAsync?month=${month}&yearRange=${yearCount}`);
+}
+else {
+  fetchSalesAndProfit(`GetPOSSalesAndProfitYearlySummaryAsync`);
+}
+};
+
+
+const fetchSalesAndProfit = async (URL) => {
+    try {
+      const response = await fetch(
+        `${BASE_URL}/Dashboard/${URL}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch");
+      }
+
+      const data = await response.json();
+      setList(data.result);
+
+    } catch (error) {
+      console.error("Error fetching:", error);
+    }
+  };
   useEffect(() => {
     switch (timeFrame) {
       case "daily":
-        setChartData(generateDailyData(selectedDate));
+        handleGetData(1);
+        if (!startDate || !endDate || startDate > endDate) return;
+        setChartData(generateDailyData(startDate, endDate));
         break;
       case "monthly":
-        setChartData(generateMonthlyData(selectedMonth));
+        handleGetData(2);
+        setChartData(generateMonthlyData(selectedMonth, yearCount));
         break;
       case "yearly":
-        setChartData(generateYearlyData(selectedYear));
+        handleGetData(3);
+        setChartData(generateYearlyData());
         break;
       default:
-        setChartData(generateDailyData(selectedDate));
+        setChartData(generateMonthlyData(selectedMonth, yearCount));
     }
-  }, [timeFrame, selectedDate, selectedMonth, selectedYear]);
+  }, [timeFrame, startDate, endDate, selectedMonth, yearCount]);
 
+  // --- Dynamic chart title based on selected filters ---
   const getChartTitle = () => {
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     switch (timeFrame) {
-      case "daily":
-        return `Daily: ${selectedDate.toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        })}`;
-      case "monthly":
-        return `Monthly: ${selectedMonth.toLocaleDateString("en-US", {
-          month: "long",
-          year: "numeric",
-        })}`;
-      case "yearly":
-        return `Yearly: ${selectedYear.getFullYear()}`;
-      default:
-        return "Sales & Profit with Margin";
+        case 'daily':
+            if (!startDate || !endDate) return "Sales & Profit";
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            const startStr = startDate.toLocaleDateString('en-US', options);
+            const endStr = endDate.toLocaleDateString('en-US', options);
+            return `Daily: ${startStr} - ${endStr}`;
+        case 'monthly':
+            const monthName = monthNames[selectedMonth];
+            const plural = yearCount > 1 ? 's' : '';
+            return `Sales for ${monthName} Over the Last ${yearCount} Year${plural}`;
+        case 'yearly':
+            return "Yearly Sales & Profit Comparison";
+        default:
+            return "Sales & Profit";
     }
   };
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <Box sx={{ p: 3 }}>
+      <Box sx={{ p: 2 }}>
         <Grid container spacing={3}>
           <Grid item xs={12}>
             <Typography as="h3" sx={{ fontSize: 18, fontWeight: 500 }}>
@@ -152,11 +185,11 @@ const Sales = () => {
                   mb: 2,
                 }}
               >
-                <Typography variant="h6" gutterBottom>
+                <Typography variant="h6" gutterBottom sx={{ mb: 0 }}>
                   {getChartTitle()}
                 </Typography>
 
-                <Stack direction="row" spacing={2} sx={{ flexWrap: "wrap" }}>
+                <Stack direction="row" spacing={2} sx={{ flexWrap: "wrap", gap: 1 }}>
                   <FormControl sx={{ minWidth: 120 }} size="small">
                     <InputLabel>View</InputLabel>
                     <Select
@@ -170,48 +203,65 @@ const Sales = () => {
                     </Select>
                   </FormControl>
 
-                  {timeFrame === "daily" && (
-                    <DatePicker
-                      label="Select Date"
-                      value={selectedDate}
-                      onChange={(newValue) => setSelectedDate(newValue)}
-                      renderInput={(params) => (
-                        <TextField {...params} size="small" />
-                      )}
-                    />
+                  {/* --- Daily View Controls --- */}
+                  {timeFrame === 'daily' && (
+                    <>
+                      <DatePicker
+                        label="From Date"
+                        value={startDate}
+                        onChange={(newValue) => setStartDate(newValue)}
+                        maxDate={endDate}
+                        renderInput={(params) => <TextField {...params} size="small" />}
+                      />
+                      <DatePicker
+                        label="To Date"
+                        value={endDate}
+                        onChange={(newValue) => setEndDate(newValue)}
+                        minDate={startDate}
+                        renderInput={(params) => <TextField {...params} size="small" />}
+                      />
+                    </>
                   )}
 
-                  {timeFrame === "monthly" && (
-                    <DatePicker
-                      views={["month", "year"]}
-                      label="Select Month"
-                      value={selectedMonth}
-                      onChange={(newValue) => setSelectedMonth(newValue)}
-                      renderInput={(params) => (
-                        <TextField {...params} size="small" />
-                      )}
-                    />
-                  )}
-
-                  {timeFrame === "yearly" && (
-                    <DatePicker
-                      views={["year"]}
-                      label="Select Year"
-                      value={selectedYear}
-                      onChange={(newValue) => setSelectedYear(newValue)}
-                      renderInput={(params) => (
-                        <TextField {...params} size="small" />
-                      )}
-                    />
+                  {/* --- Monthly View Controls --- */}
+                  {timeFrame === 'monthly' && (
+                    <>
+                      <FormControl sx={{ minWidth: 120 }} size="small">
+                        <InputLabel>Month</InputLabel>
+                        <Select
+                          value={selectedMonth}
+                          label="Month"
+                          onChange={(e) => setSelectedMonth(e.target.value)}
+                        >
+                          {Array.from({ length: 12 }, (_, i) => (
+                            <MenuItem key={i} value={i}>
+                              {new Date(0, i).toLocaleString('en-US', { month: 'long' })}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                      <FormControl sx={{ minWidth: 120 }} size="small">
+                        <InputLabel>Years</InputLabel>
+                        <Select
+                          value={yearCount}
+                          label="Years"
+                          onChange={(e) => setYearCount(e.target.value)}
+                        >
+                          {[1, 2, 3, 4, 5,6,7,8,9,10].map(year => (
+                            <MenuItem key={year} value={year}>{year}</MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </>
                   )}
                 </Stack>
               </Box>
 
               <Box sx={{ height: 400 }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <ComposedChart data={chartData}>
+                  <ComposedChart data={list}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
+                    <XAxis dataKey="name"/>
                     <YAxis
                       yAxisId="left"
                       orientation="left"
@@ -247,7 +297,7 @@ const Sales = () => {
                     />
                     <Line
                       yAxisId="right"
-                      dataKey="margin"
+                      dataKey="profitMargin"
                       name="Profit Margin (%)"
                       stroke={theme.palette.secondary.main}
                       strokeWidth={2}

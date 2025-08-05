@@ -228,6 +228,7 @@ export default function AddReservation({ fetchItems, documentNo }) {
       DocumentNo: documentNo,
       ReservationDate: selectedCustomer.reservationDate,
       CustomerName: selectedCustomer.customerName,
+      GroomName: selectedCustomer.groomName,
       ReservationFunctionType: values.ReservationFunctionType ? values.ReservationFunctionType : selectedCustomer.reservationFunctionType,
       Description: selectedCustomer.description,
       MobileNo: selectedCustomer.mobileNo,
@@ -236,6 +237,7 @@ export default function AddReservation({ fetchItems, documentNo }) {
       PreferdTime: values.PreferdTime ? values.PreferdTime : selectedCustomer.preferdTime,
       BridleType: values.BridleType ? values.BridleType : selectedCustomer.bridleType,
       Location: values.Location ? values.Location : selectedCustomer.location,
+      GroomName: values.GroomName || "",
       Type: selectedCustomer.type,
       IsExpire: selectedCustomer.isExpire,
       ExpireProcessDate: selectedCustomer.ExpireProcessDate,
@@ -387,6 +389,7 @@ export default function AddReservation({ fetchItems, documentNo }) {
               ReservationDate: selectedCustomer ? selectedCustomer.reservationDate : "",
               ReservationFunctionType: selectedCustomer ? selectedCustomer.reservationFunctionType : null,
               CustomerName: selectedCustomer ? selectedCustomer.customerName : "",
+              GroomName: "",
               Description: "",
               MobileNo: selectedCustomer ? selectedCustomer.mobileNo : "",
               EmergencyContactNo: "",
@@ -536,9 +539,10 @@ export default function AddReservation({ fetchItems, documentNo }) {
                               <MenuItem value={1}>Wedding</MenuItem>
                               <MenuItem value={2}>Home Coming</MenuItem>
                               <MenuItem value={3}>Wedding & Home Coming</MenuItem>
-                              <MenuItem value={4}>Noramal Dressing</MenuItem>
+                              <MenuItem value={4}>Normal Dressing</MenuItem>
                               <MenuItem value={5}>Photo Shoot</MenuItem>
                               <MenuItem value={6}>Outfit Only</MenuItem>
+                              <MenuItem value={7}>Engagement</MenuItem>
                             </Field>
                           </FormControl>
                         </Grid>
@@ -550,6 +554,16 @@ export default function AddReservation({ fetchItems, documentNo }) {
                             type="text"
                             value={selectedCustomer?.customerName || ""}
                             onChange={(e) => handleCustomerChange("customerName", e.target.value)}
+                          />
+                        </Grid>
+                        <Grid item xs={12} lg={6} mb={1}>
+                          <Typography>Name of Groom</Typography>
+                          <Field
+                            as={TextField}
+                            type="text"
+                            name="GroomName"
+                            value={values.GroomName}
+                            fullWidth
                           />
                         </Grid>
                         <Grid item xs={12} lg={6} mb={1}>

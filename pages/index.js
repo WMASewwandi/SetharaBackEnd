@@ -21,7 +21,7 @@ export default function eCommerce() {
   return (
     <>
       {/* Page title */}
-      <div className={styles.pageTitle}>
+      {/* <div className={styles.pageTitle}>
         <h1>eCommerce</h1>
         <ul>
           <li>
@@ -31,7 +31,7 @@ export default function eCommerce() {
             eCommerce
           </li>
         </ul>
-      </div>
+      </div> */}
 <Landing />
 
       {/*

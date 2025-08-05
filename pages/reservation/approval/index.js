@@ -22,6 +22,7 @@ import PaymentApproval from "@/components/UIElements/Modal/PaymentApproval";
 import RejectById from "@/components/UIElements/Modal/RejectById";
 import MakePayment from "@/components/UIElements/Modal/MakePayment";
 import { getPaymentMethods } from "@/components/types/types";
+import EditApproval from "./edit";
 
 export default function Approval() {
   const cId = sessionStorage.getItem("category")
@@ -147,6 +148,7 @@ export default function Approval() {
                   <TableCell>Mobile No</TableCell>
                   <TableCell>NIC/Passport</TableCell>
                   <TableCell>Description</TableCell>
+                  <TableCell>Payment Description</TableCell>
                   <TableCell>Payment Type</TableCell>
                   <TableCell>Total Amount</TableCell>
                   <TableCell>Paid Amount</TableCell>
@@ -166,7 +168,7 @@ export default function Approval() {
               <TableBody>
                 {filteredData.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={11} align="center">
+                    <TableCell colSpan={12} align="center">
                       <Typography color="error">
                         No Reservations Available
                       </Typography>
@@ -185,7 +187,12 @@ export default function Approval() {
                       <TableCell>{item.customerName}</TableCell>
                       <TableCell>{item.mobileNo}</TableCell>
                       <TableCell>{item.nic}</TableCell>
-                      <TableCell>{item.description}</TableCell>
+                      <TableCell>
+                        {item.description}
+                      </TableCell>
+                       <TableCell>
+                        {item.paymentDescription}
+                      </TableCell>
                       <TableCell>{getPaymentMethods(item.paymentType)}</TableCell>
                       <TableCell>{formatCurrency(item.totalAmount)}</TableCell>
 
@@ -212,6 +219,7 @@ export default function Approval() {
                         <TableCell align="right">
                           {tabIndex === 0 ? (
                             <Box display="flex" gap={1} justifyContent="end">
+                              {update ? <EditApproval item={item} fetchItems={() => fetchResList()} /> : ""}
                               {approve1 ? <PaymentApproval
                                 item={item}
                                 fetchItems={() => fetchResList()}

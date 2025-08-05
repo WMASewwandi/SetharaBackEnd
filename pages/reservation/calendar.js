@@ -33,6 +33,7 @@ import Delete from "@/components/UIElements/Modal/Delete";
 import BASE_URL from "Base/api";
 import EditNote from "@/components/UIElements/Modal/EditNote";
 import ViewReservation from "@/components/UIElements/Modal/ViewReservation";
+import DeleteConfirmationWithReasonById from "@/components/UIElements/Modal/DeleteConfirmationWithReasonById";
 
 const Calendar = () => {
   const currentDate = new Date();
@@ -53,6 +54,7 @@ const Calendar = () => {
   const [isTableVisible, setIsTableVisible] = useState(false);
   const theme = useTheme();
   const isXs = useMediaQuery(theme.breakpoints.down("sm"));
+  const controller = "Reservation/DeletePencilNote";
 
   const fetchNotes = async (date) => {
     try {
@@ -172,14 +174,14 @@ const Calendar = () => {
         <>
           <Typography
             className={`text-start ${bookedCount > 0
-                ? type === 1
-                  ? "text-pencil-note"
-                  : type === 2
-                    ? "other-note"
-                    : type === 3
-                      ? "text-pending"
-                      : "text-booked"
-                : ""
+              ? type === 1
+                ? "text-pencil-note"
+                : type === 2
+                  ? "other-note"
+                  : type === 3
+                    ? "text-pending"
+                    : "text-booked"
+              : ""
               }`}
             sx={{ padding: 0, fontSize: "14px" }}
           >
@@ -239,8 +241,9 @@ const Calendar = () => {
                         {type === 5 && (
                           <ViewReservation reservationId={note.id} />)}
                         {note.type === 1 ? (
-                          <Box display="flex" justifyContent="end">
+                          <Box display="flex" justifyContent="end" gap={1}>
                             <EditNote date={selectedDate} note={note} fetchItems={fetchNotes} />
+                            <DeleteConfirmationWithReasonById id={note.id} controller={controller} fetchItems={fetchNotes} date={selectedDate} />
                           </Box>
                         ) : (
                           ""
