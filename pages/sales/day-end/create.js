@@ -96,7 +96,7 @@ export default function CreateDayEnd({ fetchItems }) {
             }}
             onSubmit={handleSubmit}
           >
-            {({setFieldValue}) => (
+            {({ setFieldValue }) => (
               <Form>
                 <Grid container>
                   <Grid item xs={12}>
@@ -130,6 +130,9 @@ export default function CreateDayEnd({ fetchItems }) {
                         setFieldValue("Date", e.target.value);
                       }}
                       type="date"
+                      inputProps={{
+                        max: new Date().toISOString().split("T")[0],
+                      }}
                     />
                   </Grid>
                   <Grid item xs={12} my={2}>
@@ -150,7 +153,7 @@ export default function CreateDayEnd({ fetchItems }) {
                     />
                   </Grid>
                   <Grid item xs={12}>
-                    <EditDayEnd date={date}/>
+                    <EditDayEnd date={date} />
                   </Grid>
                   <Grid
                     display="flex"

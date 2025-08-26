@@ -101,9 +101,7 @@ export default function PencilNotes() {
         if (tabIndex === 1) return !item.isDeleted && item.isExpired;
         if (tabIndex === 2) return item.isDeleted && !item.isExpired;
         return false;
-    });
-
-    console.log(filteredData);
+    });    
 
     if (!navigate) return <AccessDenied />;
 

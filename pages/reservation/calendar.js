@@ -155,47 +155,46 @@ const Calendar = () => {
 
     const formattedResDate = allNotes.map((note) => ({
       ...note,
-      reservationDate: new Date(note.reservationDate).toLocaleDateString(
-        "en-CA"
-      ),
+      reservationDate: note.reservationDate
+        ? new Date(note.reservationDate).toLocaleDateString("en-CA")
+        : null,
+      homeComingDate: note.homeComingDate
+        ? new Date(note.homeComingDate).toLocaleDateString("en-CA")
+        : null,
     }));
 
     const notesForDay = formattedResDate.filter(
       (note) =>
-        note.reservationDate === formattedDay && note.isDeleted === false
+        !note.isDeleted &&
+        (note.reservationDate === formattedDay || note.homeComingDate === formattedDay)
     );
 
     if (notesForDay.length > 0) {
-      const bookedCount = notesForDay.filter(
-        (note) => note.type === type
-      ).length;
+      const bookedCount = notesForDay.filter((note) => note.type === type).length;
 
       return (
-        <>
-          <Typography
-            className={`text-start ${bookedCount > 0
-              ? type === 1
-                ? "text-pencil-note"
-                : type === 2
-                  ? "other-note"
-                  : type === 3
-                    ? "text-pending"
-                    : "text-booked"
-              : ""
-              }`}
-            sx={{ padding: 0, fontSize: "14px" }}
-          >
-            {bookedCount != 0 ? (
-              <>
-                {bookedCount} {getLabel(type)}
-              </>
-            ) : (
-              ""
-            )}
-          </Typography>
-        </>
+        <Typography
+          className={`text-start ${bookedCount > 0
+            ? type === 1
+              ? "text-pencil-note"
+              : type === 2
+                ? "other-note"
+                : type === 3
+                  ? "text-pending"
+                  : "text-booked"
+            : ""
+            }`}
+          sx={{ padding: 0, fontSize: "14px" }}
+        >
+          {bookedCount !== 0 && (
+            <>
+              {bookedCount} {getLabel(type)}
+            </>
+          )}
+        </Typography>
       );
     }
+
     return null;
   };
 
@@ -203,16 +202,20 @@ const Calendar = () => {
     const formattedDay = `${selectedDate.split("-")[0]}-${selectedDate.split("-")[1]
       }-${String(day).padStart(2, "0")}`;
 
-    const formattedResDate = allNotes.map((note) => ({
+    const formattedNotes = allNotes.map((note) => ({
       ...note,
-      reservationDate: new Date(note.reservationDate).toLocaleDateString(
-        "en-CA"
-      ),
+      reservationDate: note.reservationDate
+        ? new Date(note.reservationDate).toLocaleDateString("en-CA")
+        : null,
+      homeComingDate: note.homeComingDate
+        ? new Date(note.homeComingDate).toLocaleDateString("en-CA")
+        : null,
     }));
 
-    return formattedResDate.filter(
+    return formattedNotes.filter(
       (note) =>
-        note.reservationDate === formattedDay && note.isDeleted === false
+        !note.isDeleted &&
+        (note.reservationDate === formattedDay || note.homeComingDate === formattedDay)
     );
   };
   const renderNotes = (type, title, Icon, iconColor) => {

@@ -58,49 +58,55 @@ export default function SelectInquiry() {
   const handleClose = () => setOpen(false);
 
   const handleNavigation = (optionDetails) => {
-    const OptionDetailsStringified = JSON.stringify(optionDetails);
-    localStorage.setItem("OptionDetails", OptionDetailsStringified);
-    if (selectedInquiry === 1) {
-      router.push({
-        pathname: "/inquiry/select-fabric",
-        query: { inqType: 1 },
-      });
-    } else if (selectedInquiry === 2) {
-      router.push({
-        pathname: "/inquiry/select-fabric",
-        query: { inqType: 2 },
-      });
-    } else if (selectedInquiry === 3) {
-      router.push({
-        pathname: "/inquiry/select-fabric",
-        query: { inqType: 3 },
-      });
-    } else if (selectedInquiry === 4) {
-      router.push({
-        pathname: "/inquiry/select-fabric",
-        query: { inqType: 4 },
-      });
-    } else if (selectedInquiry === 5) {
-      router.push({
-        pathname: "/inquiry/select-fabric",
-        query: { inqType: 5 },
-      });
-    } else if (selectedInquiry === 6) {
-      router.push({
-        pathname: "/inquiry/select-fabric",
-        query: { inqType: 6 },
-      });
-    } else if (selectedInquiry === 7) {
-      router.push({
-        pathname: "/inquiry/select-fabric",
-        query: { inqType: 7 },
-      });
-    } else if (selectedInquiry === 8) {
-      router.push({
-        pathname: "/inquiry/select-fabric",
-        query: { inqType: 8 },
-      });
-    }
+    // const OptionDetailsStringified = JSON.stringify(optionDetails);
+    // localStorage.setItem("OptionDetails", OptionDetailsStringified);
+
+
+    router.push({
+      pathname: "/inquiry/edit-inquiry/",
+      query: { id: optionDetails.inquiryID, from: 1, option: optionDetails.id },
+    });
+    // if (selectedInquiry === 1) {
+    //   router.push({
+    //     pathname: "/inquiry/select-fabric",
+    //     query: { inqType: 1 },
+    //   });
+    // } else if (selectedInquiry === 2) {
+    //   router.push({
+    //     pathname: "/inquiry/select-fabric",
+    //     query: { inqType: 2 },
+    //   });
+    // } else if (selectedInquiry === 3) {
+    //   router.push({
+    //     pathname: "/inquiry/select-fabric",
+    //     query: { inqType: 3 },
+    //   });
+    // } else if (selectedInquiry === 4) {
+    //   router.push({
+    //     pathname: "/inquiry/select-fabric",
+    //     query: { inqType: 4 },
+    //   });
+    // } else if (selectedInquiry === 5) {
+    //   router.push({
+    //     pathname: "/inquiry/select-fabric",
+    //     query: { inqType: 5 },
+    //   });
+    // } else if (selectedInquiry === 6) {
+    //   router.push({
+    //     pathname: "/inquiry/select-fabric",
+    //     query: { inqType: 6 },
+    //   });
+    // } else if (selectedInquiry === 7) {
+    //   router.push({
+    //     pathname: "/inquiry/select-fabric",
+    //     query: { inqType: 7 },
+    //   });
+    // } else if (selectedInquiry === 8) {
+    //   router.push({
+    //     pathname: "/inquiry/select-fabric",
+    //     query: { inqType: 8 },
+    //   });
+    // }
   };
 
   const handleFileChange = async (event, option) => {
@@ -534,73 +540,77 @@ export default function SelectInquiry() {
                 </IconButton>
               </Grid>
               <Grid item xs={12} mt={2}>
-                <TableContainer component={Paper}>
-                  <Table aria-label="simple table" className="dark-table">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>#</TableCell>
-                        <TableCell>Inquiry No</TableCell>
-                        <TableCell align="right">Inquiry Option</TableCell>
-                        <TableCell align="right">Document</TableCell>
-                        <TableCell align="right">Action</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {optionList.length === 0 ? (
-                        <TableRow
-                          sx={{
-                            "&:last-child td, &:last-child th": { border: 0 },
-                          }}
-                        >
-                          <TableCell colSpan={3} component="th" scope="row">
-                            <Typography color="error">
-                              No Options Available
-                            </Typography>
-                          </TableCell>
-                        </TableRow>
-                      ) : (
-                        optionList.map((option, index) => (
-                          <TableRow key={index} sx={hover}>
-                            <TableCell component="th" scope="row" onClick={() => handleNavigation(option)}>
-                              <Box>
-                                {index + 1}
-                              </Box>
-                            </TableCell>
-                            <TableCell onClick={() => handleNavigation(option)}>
-                              <Box>
-                                {option.inqCode}
-                              </Box>
-                            </TableCell>
-                            <TableCell align="right" onClick={() => handleNavigation(option)}>
-                              <Box>
-                                {option.optionName}
-                              </Box>
-                            </TableCell>
-                            <TableCell align="right">
-                              <input
-                                type="file"
-                                id="frontImage"
-                                accept="image/*"
-                                style={{ display: "none" }}
-                                onChange={(event) =>
-                                  handleFileChange(event, option)
-                                }
-                              />
-                              <label htmlFor="frontImage">
-                                <IconButton color="primary" component="span">
-                                  <CloudUploadOutlinedIcon />
-                                </IconButton>
-                              </label>
-                            </TableCell>
-                            <TableCell align="right">
-                            <EditOption category={selectedInquiry} fetchItems={fetchOptionList} item={option}/>
-                            </TableCell>
+                <Box sx={{ maxHeight: '50vh', overflowY: 'scroll' }}>
+                  <Grid container>
+                    <TableContainer component={Paper}>
+                      <Table aria-label="simple table" className="dark-table">
+                        <TableHead>
+                          <TableRow>
+                            <TableCell>#</TableCell>
+                            <TableCell>Inquiry No</TableCell>
+                            <TableCell align="right">Inquiry Option</TableCell>
+                            <TableCell align="right">Document</TableCell>
+                            <TableCell align="right">Action</TableCell>
                           </TableRow>
-                        ))
-                      )}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
+                        </TableHead>
+                        <TableBody>
+                          {optionList.length === 0 ? (
+                            <TableRow
+                              sx={{
+                                "&:last-child td, &:last-child th": { border: 0 },
+                              }}
+                            >
+                              <TableCell colSpan={3} component="th" scope="row">
+                                <Typography color="error">
+                                  No Options Available
+                                </Typography>
+                              </TableCell>
+                            </TableRow>
+                          ) : (
+                            optionList.map((option, index) => (
+                              <TableRow key={index} sx={hover}>
+                                <TableCell component="th" scope="row" onClick={() => handleNavigation(option)}>
+                                  <Box>
+                                    {index + 1}
+                                  </Box>
+                                </TableCell>
+                                <TableCell onClick={() => handleNavigation(option)}>
+                                  <Box>
+                                    {option.inqCode}
+                                  </Box>
+                                </TableCell>
+                                <TableCell align="right" onClick={() => handleNavigation(option)}>
+                                  <Box>
+                                    {option.optionName}
+                                  </Box>
+                                </TableCell>
+                                <TableCell align="right">
+                                  <input
+                                    type="file"
+                                    id="frontImage"
+                                    accept="image/*"
+                                    style={{ display: "none" }}
+                                    onChange={(event) =>
+                                      handleFileChange(event, option)
+                                    }
+                                  />
+                                  <label htmlFor="frontImage">
+                                    <IconButton color="primary" component="span">
+                                      <CloudUploadOutlinedIcon />
+                                    </IconButton>
+                                  </label>
+                                </TableCell>
+                                <TableCell align="right">
+                                  <EditOption category={selectedInquiry} fetchItems={fetchOptionList} item={option} />
+                                </TableCell>
+                              </TableRow>
+                            ))
+                          )}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  </Grid>
+                </Box>
               </Grid>
             </Grid>
           </Box>

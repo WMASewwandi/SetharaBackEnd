@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Grid,
   IconButton,
+  MenuItem,
+  Select,
   TextField,
   Tooltip,
   Typography,
@@ -14,6 +16,7 @@ import { Visibility } from "@mui/icons-material";
 import GetReportSettingValueByName from "@/components/utils/GetReportSettingValueByName";
 import { Report } from "Base/report";
 import { Catelogue } from "Base/catelogue";
+import useApi from "@/components/utils/useApi";
 
 const style = {
   position: "absolute",
@@ -26,16 +29,32 @@ const style = {
   p: 2,
 };
 
-export default function SalesSummaryReport({ docName ,reportName}) {
+export default function SalesSummaryReport({ docName, reportName }) {
   const warehouseId = localStorage.getItem("warehouse");
   const [open, setOpen] = useState(false);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const { data: SalesSummaryReport } = GetReportSettingValueByName(reportName);
   const name = localStorage.getItem("name");
+  const [customers, setCustomers] = useState([]);
+  const [customerId, setCustomerId] = useState(0);
+  const [items, setItems] = useState([]);
+  const [itemId, setItemId] = useState(0);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+
+  const { data: customerList } = useApi("/Customer/GetAllCustomer");
+  const { data: itemList } = useApi("/Items/GetAllItems");
+
+  useEffect(() => {
+    if (customerList) {
+      setCustomers(customerList);
+    }
+    if (itemList) {
+      setItems(itemList);
+    }
+  }, [customerList, itemList]);
 
   const isFormValid = fromDate && toDate;
 
@@ -85,11 +104,45 @@ export default function SalesSummaryReport({ docName ,reportName}) {
                   onChange={(e) => setToDate(e.target.value)}
                 />
               </Grid>
+              <Grid item xs={12}>
+                <Typography as="h5" sx={{ fontWeight: "500", fontSize: "14px", mb: "12px" }}>
+                  Select Customer
+                </Typography>
+                <Select
+                  fullWidth
+                  size="small"
+                  value={customerId}
+                  onChange={(e) => setCustomerId(e.target.value)}
+                >
+                  <MenuItem value={0}>All</MenuItem>
+                  {customers.length === 0 ? <MenuItem value="">No Customers Available</MenuItem>
+                    : (customers.map((customer) => (
+                      <MenuItem key={customer.id} value={customer.id}>{customer.firstName} {customer.lastName}</MenuItem>
+                    )))}
+                </Select>
+              </Grid>
+              <Grid item xs={12}>
+                <Typography as="h5" sx={{ fontWeight: "500", fontSize: "14px", mb: "12px" }}>
+                  Select Item
+                </Typography>
+                <Select
+                  fullWidth
+                  size="small"
+                  value={itemId}
+                  onChange={(e) => setItemId(e.target.value)}
+                >
+                  <MenuItem value={0}>All</MenuItem>
+                  {items.length === 0 ? <MenuItem value="">No Items Available</MenuItem>
+                    : (items.map((item) => (
+                      <MenuItem key={item.id} value={item.id}>{item.name}</MenuItem>
+                    )))}
+                </Select>
+              </Grid>
               <Grid item xs={12} display="flex" justifyContent="space-between" mt={2}>
                 <Button onClick={handleClose} variant="contained" color="error">
                   Close
                 </Button>
-                <a href={`${Report}/${docName}?InitialCatalog=${Catelogue}&reportName=${SalesSummaryReport}&fromDate=${fromDate}&toDate=${toDate}&warehouseId=${warehouseId}&currentUser=${name}`} target="_blank">
+                <a href={`${Report}/${docName}?InitialCatalog=${Catelogue}&reportName=${SalesSummaryReport}&fromDate=${fromDate}&toDate=${toDate}&warehouseId=${warehouseId}&currentUser=${name}&customer=${customerId}&item=${itemId}`} target="_blank">
                   <Button variant="contained" disabled={!isFormValid} aria-label="print" size="small">
                     Submit
                   </Button>

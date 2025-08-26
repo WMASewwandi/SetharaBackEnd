@@ -52,19 +52,19 @@ export default function DailyDeposits() {
     const value = event.target.value;
     setSearchTerm(value);
     setPage(1);
-    fetchItemsList(1, value, pageSize);
+    fetchDepositList(1, value, pageSize);
   };
 
   const handlePageChange = (event, value) => {
     setPage(value);
-    fetchItemsList(value, searchTerm, pageSize);
+    fetchDepositList(value, searchTerm, pageSize);
   };
 
   const handlePageSizeChange = (event) => {
     const newSize = event.target.value;
     setPageSize(newSize);
     setPage(1);
-    fetchItemsList(1, searchTerm, newSize);
+    fetchDepositList(1, searchTerm, newSize);
   };
 
   const fetchDepositList = async (page = 1, search = "", size = pageSize) => {

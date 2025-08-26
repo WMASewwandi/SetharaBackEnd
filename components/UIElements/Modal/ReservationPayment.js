@@ -15,6 +15,7 @@ import MakePayment from "./MakePayment";
 import useGetList from "@/components/utils/getList";
 import BASE_URL from "Base/api";
 import { toast } from "react-toastify";
+import { formatDate } from "@/components/utils/formatHelper";
 
 const style = {
   position: "absolute",
@@ -102,6 +103,10 @@ export default function ReservationPayment({ fetchItems }) {
       preferdTime: customer.preferdTime || "",
       bridleType: customer.bridleType || "",
       location: customer.location || "",
+      homeComingDate: formatDate(customer.homeComingDate) || "",
+      homeComingPreferredTime: customer.homeComingPreferredTime || "",
+      homeComingBridleType: customer.homeComingBridleType || "",
+      homeComingLocation: customer.homeComingLocation || "",
       description: customer.description || "",
       reservationFunctionType: customer.reservationFunctionType || ""
     });
@@ -139,6 +144,10 @@ export default function ReservationPayment({ fetchItems }) {
       IsExpire: selectedCustomer.isExpire,
       ReservationExpiryDate: selectedCustomer.reservationExpiryDate,
       ReservationFunctionType: formData.reservationFunctionType,
+      HomeComingDate: formData.homeComingDate,
+      HomeComingPreferredTime: formData.homeComingPreferredTime,
+      HomeComingBridleType: formData.homeComingBridleType,
+      HomeComingLocation: formData.homeComingLocation,
     }
 
     const response = await fetch(`${BASE_URL}/Reservation/UpdatePencilNoteReservation`, {
@@ -160,7 +169,7 @@ export default function ReservationPayment({ fetchItems }) {
     } else {
       toast.error(data.message);
     }
-    
+
   };
 
   useEffect(() => {
@@ -235,23 +244,6 @@ export default function ReservationPayment({ fetchItems }) {
             <Box sx={{ maxHeight: '50vh', overflowY: 'scroll' }}>
               <Grid container spacing={1}>
                 <Grid item xs={12} lg={6}>
-                  <Typography as="h5">Customer Name</Typography>
-                  <TextField
-                    value={formData.customerName}
-                    onChange={(e) => handleChange("customerName", e.target.value)}
-                    fullWidth
-                  />
-                </Grid>
-                <Grid item xs={12} lg={6}>
-                  <Typography as="h5">Reservation Date</Typography>
-                  <TextField
-                    type="date"
-                    value={formData.reservationDate}
-                    onChange={(e) => handleChange("reservationDate", e.target.value)}
-                    fullWidth
-                  />
-                </Grid>
-                <Grid item xs={12} lg={6}>
                   <Typography as="h5">Event Type</Typography>
                   <TextField
                     select
@@ -269,6 +261,14 @@ export default function ReservationPayment({ fetchItems }) {
                   </TextField>
                 </Grid>
                 <Grid item xs={12} lg={6}>
+                  <Typography as="h5">Customer Name</Typography>
+                  <TextField
+                    value={formData.customerName}
+                    onChange={(e) => handleChange("customerName", e.target.value)}
+                    fullWidth
+                  />
+                </Grid>                
+                <Grid item xs={12} lg={6}>
                   <Typography as="h5">Phone No</Typography>
                   <TextField
                     value={formData.mobileNo}
@@ -284,7 +284,21 @@ export default function ReservationPayment({ fetchItems }) {
                     fullWidth
                   />
                 </Grid>
-                <Grid item xs={12} lg={6}>
+                {formData.reservationFunctionType === 3 ?
+                  <Grid item xs={12} lg={12} mt={2}>
+                    <Typography color="primary">Wedding Details</Typography>
+                  </Grid>
+                  : ""}
+                <Grid item xs={12} lg={3}>
+                  <Typography as="h5">Reservation Date</Typography>
+                  <TextField
+                    type="date"
+                    value={formData.reservationDate}
+                    onChange={(e) => handleChange("reservationDate", e.target.value)}
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12} lg={3}>
                   <Typography as="h5">Preferred Time</Typography>
                   <TextField
                     select
@@ -296,7 +310,7 @@ export default function ReservationPayment({ fetchItems }) {
                     <MenuItem value={2}>Evening</MenuItem>
                   </TextField>
                 </Grid>
-                <Grid item xs={12} lg={6}>
+                <Grid item xs={12} lg={3}>
                   <Typography as="h5">Bridal Type</Typography>
                   <TextField
                     select
@@ -310,7 +324,7 @@ export default function ReservationPayment({ fetchItems }) {
                     <MenuItem value={4}>Hindu</MenuItem>
                   </TextField>
                 </Grid>
-                <Grid item xs={12} lg={6}>
+                <Grid item xs={12} lg={3}>
                   <Typography as="h5">Location</Typography>
                   <TextField
                     select
@@ -323,7 +337,61 @@ export default function ReservationPayment({ fetchItems }) {
                     <MenuItem value={3}>Overseas</MenuItem>
                   </TextField>
                 </Grid>
-                <Grid item lg={6} xs={12} mb={3}>
+                {formData.reservationFunctionType === 3 ?
+                  <>
+                    <Grid item xs={12} lg={12} mt={2}>
+                      <Typography color="primary">Home Coming Details</Typography>
+                    </Grid>
+                    <Grid item xs={12} lg={3} mt={1}>
+                      <Typography>Home Coming Date</Typography>
+                      <TextField
+                        value={formData.homeComingDate}
+                        onChange={(e) => handleChange("homeComingDate", e.target.value)}
+                        type="date"
+                        fullWidth
+                      />
+                    </Grid>
+                    <Grid item xs={12} lg={3} mt={1}>
+                      <Typography>Preferred Time</Typography>
+                      <TextField
+                        select
+                        value={formData.homeComingPreferredTime}
+                        onChange={(e) => handleChange("homeComingPreferredTime", e.target.value)}
+                        fullWidth
+                      >
+                        <MenuItem value={1}>Morning</MenuItem>
+                        <MenuItem value={2}>Evening</MenuItem>
+                      </TextField>
+                    </Grid>
+                    <Grid item xs={12} lg={3} mt={1}>
+                      <Typography>Bridal Type</Typography>
+                      <TextField
+                        select
+                        value={formData.homeComingBridleType}
+                        onChange={(e) => handleChange("homeComingBridleType", e.target.value)}
+                        fullWidth
+                      >
+                        <MenuItem value={1}>Kandyan</MenuItem>
+                        <MenuItem value={2}>Indian</MenuItem>
+                        <MenuItem value={3}>Western</MenuItem>
+                        <MenuItem value={4}>Hindu</MenuItem>
+                      </TextField>
+                    </Grid>
+                    <Grid item xs={12} lg={3} mt={1}>
+                      <Typography>Location</Typography>
+                      <TextField
+                        select
+                        fullWidth
+                        value={formData.homeComingLocation}
+                        onChange={(e) => handleChange("homeComingLocation", e.target.value)}
+                      >
+                        <MenuItem value={1}>Studio</MenuItem>
+                        <MenuItem value={2}>Away</MenuItem>
+                        <MenuItem value={3}>Overseas</MenuItem>
+                      </TextField>
+                    </Grid>
+                  </> : ""}
+                <Grid item lg={12} xs={12} mb={3}>
                   <Typography as="h5">Description</Typography>
                   <TextField
                     value={formData.description}

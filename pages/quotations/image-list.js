@@ -9,13 +9,13 @@ import { Typography } from '@mui/material';
 import DocType from 'pages/inquiry/Types/docType';
 import DocSubType from 'pages/inquiry/Types/docSubType';
 
-export default function TitlebarBelowMasonryImageList({ inquiryID, optionId, windowType }) {
+export default function TitlebarBelowMasonryImageList({ inquiry }) {
     const [documents, setDocuments] = useState([]);
 
-    const fetchDocuments = async () => {
+    const fetchDocuments = async (inquiryId, optionId, windowType) => {
         try {
             const response = await fetch(
-                `${BASE_URL}/AWS/GetAllDocumentsByOption?InquiryID=${inquiryID}&OptionId=${optionId}&WindowType=${windowType}`,
+                `${BASE_URL}/AWS/GetAllDocumentsByOption?InquiryID=${inquiryId}&OptionId=${optionId}&WindowType=${windowType}`,
                 {
                     method: "GET",
                     headers: {
@@ -46,8 +46,11 @@ export default function TitlebarBelowMasonryImageList({ inquiryID, optionId, win
     };
 
     useEffect(() => {
-        fetchDocuments();
-    }, []);
+        if (inquiry) {
+            fetchDocuments(inquiry.inquiryId, inquiry.optionId, inquiry.windowType);
+        }
+    }, [inquiry]);
+
 
     return (
         <Box>

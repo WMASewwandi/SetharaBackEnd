@@ -49,6 +49,7 @@ const InvoiceCreate = () => {
   const [invNo, setInvNo] = useState("");
   const [selectedItem, setSelectedItem] = useState();
   const [remark, setRemark] = useState("");
+  const [regNo, setRegNo] = useState("");
   const [productId, setProductId] = useState();
   const [stockBalance, setStockBalance] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -58,6 +59,8 @@ const InvoiceCreate = () => {
   const [address2, setAddress2] = useState("");
   const [address3, setAddress3] = useState("");
   const [address4, setAddress4] = useState("");
+  const [doctors, setDoctors] = useState([]);
+  const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const [grossTotal, setGrossTotal] = useState(0);
@@ -91,11 +94,22 @@ const InvoiceCreate = () => {
     "IsBookingSystem"
   );
 
+  const { data: isDoctorInvolved } = IsAppSettingEnabled(
+    "IsDoctorInvolved"
+  );
+
+  const { data: isAllowProfitMessageDisplay } = IsAppSettingEnabled(
+    "IsAllowProfitMessageDisplay"
+  );
+
   const {
     data: customerList,
     loading: customerLoading,
     error: customerError,
   } = useApi("/Customer/GetAllCustomer");
+
+  const { data: doctorsList } = useApi("/Doctors/GetAll");
+
 
   const fetchStockList = async (id) => {
     try {
@@ -203,6 +217,7 @@ const InvoiceCreate = () => {
 
     setRows(prevRows => [...prevRows, newItem]);
     setOpen(false);
+    setSelectedItem();
   };
 
 
@@ -377,6 +392,9 @@ const InvoiceCreate = () => {
       NetTotal: parseFloat(grossTotal),
       SalesPerson: salesPerson?.name || "",
       FormSubmitId: guidRef.current,
+      RegNo: regNo || "",
+      DoctorId: selectedDoctor ? selectedDoctor.id : null,
+      DoctorName: selectedDoctor ? selectedDoctor.firstName + " " + selectedDoctor.lastName : "",
       InvoiceLineDetails: invoiceLines,
     };
 
@@ -439,7 +457,7 @@ const InvoiceCreate = () => {
     const x = parseFloat(item.costPrice) / 2;
     const y = parseFloat(item.sellingPrice) - parseFloat(item.costPrice);
 
-    if (y > x) {
+    if ((y > x) && isAllowProfitMessageDisplay) {
       toast.info("Profit exceeds 50% of the cost price.");
     }
 
@@ -512,7 +530,7 @@ const InvoiceCreate = () => {
     const x = parseFloat(row.costPrice) / 2;
     const y = parseFloat(newPrice) - parseFloat(row.costPrice);
 
-    if (y > x) {
+    if ((y > x) && isAllowProfitMessageDisplay) {
       toast.info("Profit exceeds 50% of the cost price.");
     }
     const oldTotalPrice = row.totalPrice;
@@ -558,12 +576,15 @@ const InvoiceCreate = () => {
     if (customerList) {
       setCustomers(customerList);
     }
+    if (doctorsList) {
+      setDoctors(doctorsList);
+    }
     updateInvNo();
     if (stockBalance) {
       setStock(stockBalance);
       setSelectedItem(stockBalance[0]);
     }
-  }, [stockBalance, customerList]);
+  }, [stockBalance, customerList, doctorsList]);
 
   return (
     <>
@@ -643,7 +664,6 @@ const InvoiceCreate = () => {
                   )}
                 />
               </Grid>
-
               <Grid item xs={12} display="flex" flexDirection="column" mt={1}>
                 <Grid
                   item
@@ -764,7 +784,7 @@ const InvoiceCreate = () => {
                   />
                 </Grid>
 
-                {!isBookingSystem && (
+                {isBookingSystem ? "" :
                   <Grid
                     item
                     xs={12}
@@ -804,6 +824,76 @@ const InvoiceCreate = () => {
                       )}
                     />
                   </Grid>
+                }
+
+                {isDoctorInvolved && (
+                  <>
+                    <Grid
+                      item
+                      xs={12}
+                      display="flex"
+                      justifyContent="space-between"
+                      mt={1}
+                    >
+                      <Typography
+                        component="label"
+                        sx={{
+                          fontWeight: "500",
+                          p: 1,
+                          fontSize: "14px",
+                          display: "block",
+                          width: "35%",
+                        }}
+                      >
+                        Doctor
+                      </Typography>
+                      <Autocomplete
+                        sx={{ width: "60%" }}
+                        options={doctors}
+                        getOptionLabel={(option) => option.firstName + " " + option.lastName || ""}
+                        value={selectedDoctor}
+                        onChange={(event, newValue) => {
+                          setSelectedDoctor(newValue);
+                        }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            size="small"
+                            fullWidth
+                            placeholder="Search Doctor"
+                          />
+                        )}
+                      />
+                    </Grid>
+
+                    <Grid
+                      item
+                      xs={12}
+                      display="flex"
+                      justifyContent="space-between"
+                      mt={1}
+                    >
+                      <Typography
+                        component="label"
+                        sx={{
+                          fontWeight: "500",
+                          p: 1,
+                          fontSize: "14px",
+                          display: "block",
+                          width: "35%",
+                        }}
+                      >
+                        Patient Reg. No.
+                      </Typography>
+                      <TextField
+                        sx={{ width: "60%" }}
+                        size="small"
+                        fullWidth
+                        value={regNo}
+                        onChange={(e) => setRegNo(e.target.value)}
+                      />
+                    </Grid>
+                  </>
                 )}
               </Grid>
             </Grid>
@@ -982,7 +1072,7 @@ const InvoiceCreate = () => {
                             sx={{ width: "100px" }}
                             type="number"
                             size="small"
-                            value= {isBookingSystem ? row.rate : row.sellingPrice}
+                            value={isBookingSystem ? row.rate : row.sellingPrice}
                             onChange={(e) => handleSellingPriceChange(index, e.target.value)}
                             onKeyDown={(e) => {
                               if (e.key === "Tab" && index === selectedRows.length - 1) {
@@ -1067,7 +1157,6 @@ const InvoiceCreate = () => {
               >
                 <TableHead>
                   <TableRow>
-                    <TableCell>#</TableCell>
                     {IsBatchNumberAvailable && (
                       <TableCell>Batch No</TableCell>
                     )}
@@ -1081,6 +1170,12 @@ const InvoiceCreate = () => {
                     )}
 
                     <TableCell>Selling Price</TableCell>
+                    {isOutlet ? "" :
+                      <>
+                        <TableCell>Category</TableCell>
+                        <TableCell>Sub Category</TableCell>
+                        <TableCell>UOM</TableCell>
+                      </>}
 
                     <TableCell></TableCell>
                   </TableRow>
@@ -1097,7 +1192,6 @@ const InvoiceCreate = () => {
                       .sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate))
                       .map((item, index) => (
                         <TableRow key={item.id}>
-                          <TableCell>{index + 1}</TableCell>
                           {IsBatchNumberAvailable && (
                             <TableCell>{item.batchNumber}</TableCell>
                           )}
@@ -1114,6 +1208,12 @@ const InvoiceCreate = () => {
                           )}
 
                           <TableCell>Rs. {formatCurrency(item.sellingPrice)}</TableCell>
+                          {isOutlet ? "" :
+                            <>
+                              <TableCell>{item.categoryName}</TableCell>
+                              <TableCell>{item.subCategoryName}</TableCell>
+                              <TableCell>{item.uom}</TableCell>
+                            </>}
                           <TableCell>
                             <Radio
                               name="stockSelection"
@@ -1154,7 +1254,7 @@ const style = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: { lg: 700, xs: 350 },
+  width: { lg: 800, xs: 350 },
   bgcolor: "background.paper",
   boxShadow: 24,
   p: 2,

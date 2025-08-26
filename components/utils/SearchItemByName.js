@@ -3,6 +3,7 @@ import { TextField, Paper, List, ListItem, ListItemText } from "@mui/material";
 import { toast } from "react-toastify";
 import GetAllItemDetails from "./GetAllItemDetails";
 import GetAllSuppliers from "./GetAllSuppliers";
+import IsAppSettingEnabled from "./IsAppSettingEnabled";
 
 const SearchItemByName = forwardRef(({
   label = "Search",
@@ -24,6 +25,10 @@ const SearchItemByName = forwardRef(({
   const [catInfo, setCatInfo] = useState({});
   const [subCatInfo, setSubCatInfo] = useState({});
   const [uomInfo, setUOMInfo] = useState({});
+
+  const { data: IsSubCategoryVisibleInSearch } = IsAppSettingEnabled(
+    "IsSubCategoryVisibleInSearch"
+  );
 
   useImperativeHandle(ref, () => ({
     focus: () => {
@@ -60,7 +65,7 @@ const SearchItemByName = forwardRef(({
       }, {});
       setSupplierInfo(supplierMap);
     }
-  }, [categories, subCategories, uoms,suppliers]);
+  }, [categories, subCategories, uoms, suppliers]);
 
   const buildQuery = (base, params) => {
     const query = new URLSearchParams(params).toString();
@@ -68,9 +73,9 @@ const SearchItemByName = forwardRef(({
   };
 
   const handleSearch = async (value) => {
-   
+
     try {
-      const url = buildQuery(fetchUrl, {keyword: value });
+      const url = buildQuery(fetchUrl, { keyword: value });
       const response = await fetch(url, {
         method: "GET",
         headers: {
@@ -159,7 +164,7 @@ const SearchItemByName = forwardRef(({
               >
 
                 <ListItemText
-                  primary={`${item.supplierName || ""} - ${getResultLabel(item)} - ${catInfo[item.categoryId]?.name || "-"} - ${uomInfo[item.uom]?.name || ""} - ${item.qty}`}
+                  primary={`${item.supplierName || ""} - ${getResultLabel(item)} - ${catInfo[item.categoryId]?.name || "-"}${IsSubCategoryVisibleInSearch && item.subCategoryName ? ` - ${item.subCategoryName}` : ""} - ${uomInfo[item.uom]?.name || ""} - ${item.qty}`}
                 />
 
               </ListItem>

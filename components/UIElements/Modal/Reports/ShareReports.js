@@ -10,9 +10,10 @@ import {
   ShareDocumentMessage,
   ShareDocumentURL,
 } from "Base/document";
-import { UploadShareURL,Report } from "Base/report";
+import { UploadShareURL, Report } from "Base/report";
 import IsAppSettingEnabled from "@/components/utils/IsAppSettingEnabled";
 import { Catelogue } from "Base/catelogue";
+import ReportPreview from "./ReportPreview";
 
 const style = {
   position: "absolute",
@@ -30,8 +31,12 @@ export default function ShareReports({
   mobile
 }) {
   const { data: IsGarmentSystem } = IsAppSettingEnabled("IsGarmentSystem");
+  const { data: IsShareWhatsAppAPIThrough } = IsAppSettingEnabled("IsShareWhatsAppAPIThrough");
   const [open, setOpen] = useState(false);
+  const [preview, setPreview] = useState("");
+  const [loading, setLoading] = useState(false);
   const [code, setCode] = useState();
+
   const handleOpen = async () => {
     let now = new Date();
     let slTime = new Date(now.getTime());
@@ -45,9 +50,8 @@ export default function ShareReports({
 
     setCode(formatted);
 
-    console.log(Report + url);
-    
     try {
+      setLoading(true);
       const response = await fetch(
         `${Report}` + url + `&UniqueCode=${formatted}`,
         {
@@ -59,15 +63,25 @@ export default function ShareReports({
           },
         }
       );
+      const text = `${ShareDocumentURL}${Catelogue}/${code}.pdf`;
+      setPreview(text);
+      setOpen(true);
     } catch (error) {
       console.error("Error fetching:", error);
+    } finally {
+      setLoading(false);
     }
-    setOpen(true);
+
   };
 
 
 
   const handleClose = () => setOpen(false);
+
+  const handleOpenWhatsappTemp = (message, documentUrl) => {
+    const encodedMessage = encodeURIComponent(`${message}\n\n${documentUrl}`);
+    window.open(`https://wa.me/?text=${encodedMessage}`, "_blank");
+  };
 
   const handleShareOnWhatsapp = async () => {
     if (!mobile) {
@@ -81,30 +95,44 @@ export default function ShareReports({
     const formatNumber = mobile.replace(/^0/, "94");
     // const formatNumber = "94789251014";
 
-    try {
-      setOpen(false); 
-      const apiUrl = `https://api.textmebot.com/send.php?recipient=${formatNumber}&apikey=781LrdZkpdLh&document=${documentUrl}&text=${message}`;
+    if (IsShareWhatsAppAPIThrough) {
 
-      const response = await fetch(apiUrl, {
-        method: "GET",
-        mode: "no-cors",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      toast.success("Document sent successfully!");
-           
-    } catch (error) {
-      console.log(error);
+      try {
+        setOpen(false);
+        const apiUrl = `https://api.textmebot.com/send.php?recipient=${formatNumber}&apikey=781LrdZkpdLh&document=${documentUrl}&text=${message}`;
+
+        const response = await fetch(apiUrl, {
+          method: "GET",
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        toast.success("Document sent successfully!");
+
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      handleOpenWhatsappTemp(message, documentUrl);
     }
   };
+
 
   return (
     <>
       <Tooltip title="Share" placement="top">
-        <IconButton onClick={handleOpen} aria-label="edit" size="small">
-          <WhatsAppIcon color="primary" fontSize="medium" />
-        </IconButton>
+        <span>
+          <IconButton
+            onClick={handleOpen}
+            aria-label="edit"
+            size="small"
+            disabled={loading}
+          >
+            <WhatsAppIcon color={loading ? "disabled" : "primary"} fontSize="medium" />
+            {loading ? "..." : ""}
+          </IconButton>
+        </span>
       </Tooltip>
       <Modal
         open={open}
@@ -128,6 +156,7 @@ export default function ShareReports({
               <Typography as="h6">
                 Are you sure you want to share this on WhatsApp?
               </Typography>
+              <ReportPreview url={preview} />
             </Grid>
 
             <Grid item display="flex" gap={1} xs={12} mt={2}>

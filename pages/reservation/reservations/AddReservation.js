@@ -92,6 +92,10 @@ export default function AddReservation({ fetchItems, documentNo }) {
   const [value, setValue] = useState(0);
   const [customers, setCustomers] = useState([]);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [homeComingDateValue, setHomeComingDateValue] = useState("");
+  const [homeComingBridalTypeValue, setHomeComingBridalTypeValue] = useState(1);
+  const [homeComingLocationValue, setHomeComingLocationValue] = useState(1);
+  const [homeComingPreferedTimeValue, setHomeComingPreferedTimeValue] = useState(1);
   const [searchValue, setSearchValue] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [textFieldWidth, setTextFieldWidth] = useState(0);
@@ -122,7 +126,6 @@ export default function AddReservation({ fetchItems, documentNo }) {
       Remark: "",
     },
   ]);
-
   const [nextAppointment, setNextAppointment] = useState(1);
 
   const [appointments, setAppointments] = useState([
@@ -189,6 +192,7 @@ export default function AddReservation({ fetchItems, documentNo }) {
     setDressingRows(updatedRows);
   };
 
+
   const handleAppointmentChange = async (index, field, value) => {
     const updatedRows = appointments.map((row, i) => {
       if (i === index) {
@@ -210,6 +214,7 @@ export default function AddReservation({ fetchItems, documentNo }) {
   };
 
   const handleSubmit = async (values) => {
+
     const messages = [
       {
         condition: !selectedCustomer,
@@ -239,6 +244,10 @@ export default function AddReservation({ fetchItems, documentNo }) {
       Location: values.Location ? values.Location : selectedCustomer.location,
       GroomName: values.GroomName || "",
       Type: selectedCustomer.type,
+      HomeComingDate: isHomeComing ? homeComingDateValue : null,
+      HomeComingBridleType: isHomeComing ? values.HomeComingBridleType : null,
+      HomeComingLocation: isHomeComing ? values.HomeComingLocation : null,
+      HomeComingPreferredTime: isHomeComing ? values.HomeComingPreferredTime : null,
       IsExpire: selectedCustomer.isExpire,
       ExpireProcessDate: selectedCustomer.ExpireProcessDate,
       NextAppointmentType: nextAppointment,
@@ -255,10 +264,10 @@ export default function AddReservation({ fetchItems, documentNo }) {
         Remark: values.ReservationDetails.Remark || null,
         IsGoingAway: isGoingAway,
         IsHomeComing: isHomeComing,
-        HomeComingDate: values.ReservationDetails.HomeComingDate || null,
-        HomeComingVenue: values.ReservationDetails.HomeComingVenue || null,
-        HomeComingOutfit: values.ReservationDetails.HomeComingOutfit || null,
-        HomeComingOutfitBy: values.ReservationDetails.HomeComingOutfitBy || null,
+        HomeComingDate: isHomeComing ? homeComingDateValue : null,
+        HomeComingVenue: isHomeComing ? values.ReservationDetails.HomeComingVenue : null,
+        HomeComingOutfit: isHomeComing ? values.ReservationDetails.HomeComingOutfit : null,
+        HomeComingOutfitBy: isHomeComing ? values.ReservationDetails.HomeComingOutfitBy : null,
         GoingAwayDressingVenue:
           values.ReservationDetails.GoingAwayDressingVenue || null,
         GoingAwayOutfit: values.ReservationDetails.GoingAwayOutfit || null,
@@ -355,6 +364,16 @@ export default function AddReservation({ fetchItems, documentNo }) {
 
   const handleCustomerSelect = (customer) => {
     setSelectedCustomer(customer);
+    var isHomecoming = customer.reservationFunctionType === 3 ? true : false;
+    setIsHomeComing(isHomecoming);
+    var value = customer.homeComingDate ? customer.homeComingDate : "";
+    var bridal = customer.homeComingBridleType ? customer.homeComingBridleType : 1;
+    var location = customer.homeComingLocation ? customer.homeComingLocation : 1;
+    var pref = customer.homeComingPreferredTime ? customer.homeComingPreferredTime : 1;
+    setHomeComingDateValue(formatDate(value))
+    setHomeComingBridalTypeValue(bridal);
+    setHomeComingLocationValue(location);
+    setHomeComingPreferedTimeValue(pref);
     setShowDropdown(false);
     setSearchValue(customer.customerName);
   };
@@ -397,6 +416,9 @@ export default function AddReservation({ fetchItems, documentNo }) {
               PreferdTime: 0,
               BridleType: 0,
               Location: 0,
+              HomeComingBridleType: 1,
+              HomeComingLocation: 1,
+              HomeComingPreferredTime: 1,
               Type: 0,
               IsExpire: false,
               ExpireProcessDate: "",
@@ -743,9 +765,7 @@ export default function AddReservation({ fetchItems, documentNo }) {
                               control={<Checkbox checked={isHomeComing} />}
                               name="ReservationDetails.IsHomeComing"
                               label="Home Coming"
-                              onChange={(e) =>
-                                setIsHomeComing(e.target.checked)
-                              }
+                              onChange={(e) => setIsHomeComing(e.target.checked)}
                             />
                           </FormGroup>
                         </Grid>
@@ -756,9 +776,12 @@ export default function AddReservation({ fetchItems, documentNo }) {
                               <Field
                                 as={TextField}
                                 type="date"
-                                name="ReservationDetails.HomeComingDate"
-                                value={values.ReservationDetails.HomeComingDate}
+                                value={homeComingDateValue}
                                 fullWidth
+                                onChange={(e) => {
+                                  setHomeComingDateValue(e.target.value);
+                                  setFieldValue("ReservationDetails.HomeComingDate", e.target.value);
+                                }}
                               />
                             </Grid>
                             <Grid item xs={12} lg={6} mb={1}>
@@ -780,13 +803,64 @@ export default function AddReservation({ fetchItems, documentNo }) {
                               />
                             </Grid>
                             <Grid item xs={12} lg={6} mb={1}>
-                              <Typography>Home Coming Outfit</Typography>
+                              <Typography>Home Coming Outfit By</Typography>
                               <Field
                                 as={TextField}
                                 name="ReservationDetails.HomeComingOutfitBy"
                                 value={values.ReservationDetails.HomeComingOutfitBy}
                                 fullWidth
                               />
+                            </Grid>
+                            <Grid item xs={12} lg={6} mb={1}>
+                              <Typography>Home Coming Preferred Time</Typography>
+                              <Field
+                                as={Select}
+                                fullWidth
+                                value={homeComingPreferedTimeValue}
+                                onChange={(e) => {
+                                  setFieldValue("HomeComingPreferredTime", e.target.value);
+                                  setHomeComingPreferedTimeValue(e.target.value);
+                                }}
+                              >
+                                <MenuItem value={1}>Morning</MenuItem>
+                                <MenuItem value={2}>Evening</MenuItem>
+                              </Field>
+                            </Grid>
+                            <Grid item xs={12} lg={6} mb={1}>
+                              <Typography>Home Coming Bridal Type</Typography>
+                              <Field
+                                as={Select}
+                                name="HomeComingBridleType"
+                                fullWidth
+                                value={homeComingBridalTypeValue}
+                                onChange={(e) => {
+                                  setFieldValue("HomeComingBridleType", e.target.value);
+                                  setHomeComingBridalTypeValue(e.target.value);
+                                }}
+                              >
+                                <MenuItem value={1}>Kandyan</MenuItem>
+                                <MenuItem value={2}>Indian</MenuItem>
+                                <MenuItem value={3}>Western</MenuItem>
+                                <MenuItem value={4}>Hindu</MenuItem>
+                              </Field>
+
+                            </Grid>
+                            <Grid item xs={12} lg={6} mb={1}>
+                              <Typography>Home Coming Dressing Location</Typography>
+                              <Field
+                                as={Select}
+                                name="HomeComingLocation"
+                                fullWidth
+                                value={homeComingLocationValue}
+                                onChange={(e) => {
+                                  setFieldValue("HomeComingLocation", e.target.value);
+                                  setHomeComingLocationValue(e.target.value);
+                                }}
+                              >
+                                <MenuItem value={1}>Studio</MenuItem>
+                                <MenuItem value={2}>Away</MenuItem>
+                                <MenuItem value={3}>Overseas</MenuItem>
+                              </Field>
                             </Grid>
                           </>
                         ) : (

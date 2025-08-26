@@ -60,6 +60,11 @@ export default function EditApproval({ item, fetchItems }) {
       if (values.PaymentMethod === 3) {
         values.PaidAmount = Number(values.CashAmount || 0) + Number(values.CardAmount || 0);
       }
+
+      if(values.ReservationFunctionType === 3 && values.HomeComingDate === null){
+        toast.info("Please Enter Home Coming Details");
+        return;
+      }
       const response = await fetch(
         `${BASE_URL}/ReservationApproval/UpdateReservationApproval`,
         {
@@ -112,11 +117,16 @@ export default function EditApproval({ item, fetchItems }) {
               ReservationFunctionType: item.reservationFunctionType,
               ReservationDate: formatDate(item.weddingDate),
               PaymentDate: formatDate(item.paymentDate),
+              HomeComingDate: formatDate(item.homeComingDate) || null,
               CustomerName: item.customerName,
               MobileNo: item.mobileNo,
               PreferdTime: item.prefferdTime,
               BridleType: item.bridleType,
               Location: item.location,
+              HomeComingPreferredTime: item.homeComingPreferredTime,
+              HomeComingBridleType: item.homeComingBridleType,
+              HomeComingLocation: item.homeComingLocation,
+              PaymentCode: item.paymentCode,
               Description: item.description,
               NIC: item.nic,
               PaymentMethod: item.paymentType,
@@ -134,18 +144,6 @@ export default function EditApproval({ item, fetchItems }) {
                 <Box sx={{ maxHeight: "50vh", overflowY: "auto", mt: 2 }}>
                   {tab === 0 && (
                     <Grid container spacing={1}>
-                      <Grid item xs={12} lg={6}>
-                        <Typography>Wedding Date </Typography>
-                        <Field
-                          as={TextField}
-                          name="ReservationDate"
-                          type="date"
-                          size="small"
-                          fullWidth
-                          error={touched.ReservationDate && !!errors.ReservationDate}
-                          helperText={touched.ReservationDate && errors.ReservationDate}
-                        />
-                      </Grid>
                       <Grid item xs={12} lg={6}>
                         <Typography>Event Type </Typography>
                         <FormControl fullWidth>
@@ -200,7 +198,24 @@ export default function EditApproval({ item, fetchItems }) {
                           helperText={touched.NIC && errors.NIC}
                         />
                       </Grid>
-                      <Grid item xs={12} lg={6}>
+                      {values.ReservationFunctionType === 3 ?
+                        <Grid item xs={12} lg={12} mt={2}>
+                          <Typography color="primary">Wedding Details</Typography>
+                        </Grid>
+                        : ""}
+                      <Grid item xs={12} lg={3}>
+                        <Typography>Date </Typography>
+                        <Field
+                          as={TextField}
+                          name="ReservationDate"
+                          type="date"
+                          size="small"
+                          fullWidth
+                          error={touched.ReservationDate && !!errors.ReservationDate}
+                          helperText={touched.ReservationDate && errors.ReservationDate}
+                        />
+                      </Grid>
+                      <Grid item xs={12} lg={3}>
                         <Typography>Preferred Time </Typography>
                         <FormControl fullWidth>
                           <Field
@@ -216,7 +231,7 @@ export default function EditApproval({ item, fetchItems }) {
                           </Field>
                         </FormControl>
                       </Grid>
-                      <Grid item xs={12} lg={6}>
+                      <Grid item xs={12} lg={3}>
                         <Typography>Bridal Type </Typography>
                         <FormControl fullWidth>
                           <Field
@@ -233,7 +248,7 @@ export default function EditApproval({ item, fetchItems }) {
                           </Field>
                         </FormControl>
                       </Grid>
-                      <Grid item xs={12} lg={6}>
+                      <Grid item xs={12} lg={3}>
                         <Typography>Location </Typography>
                         <FormControl fullWidth>
                           <Field
@@ -249,7 +264,71 @@ export default function EditApproval({ item, fetchItems }) {
                           </Field>
                         </FormControl>
                       </Grid>
-                      <Grid item xs={12}>
+                      {values.ReservationFunctionType === 3 ?
+                        <>
+                          <Grid item xs={12} lg={12} mt={2}>
+                            <Typography color="primary">Home Coming Details</Typography>
+                          </Grid>
+                          <Grid item xs={12} lg={3} mt={1}>
+                            <Typography>Home Coming Date</Typography>
+                            <Field
+                              as={TextField}
+                              name="HomeComingDate"
+                              type="date"
+                              size="small"
+                              fullWidth
+                            />
+                          </Grid>
+                          <Grid item xs={12} lg={3} mt={1}>
+                            <Typography>Preferred Time</Typography>
+                            <FormControl fullWidth>
+                              <Field
+                                as={Select}
+                                name="HomeComingPreferredTime"
+                                size="small"
+                                value={values.HomeComingPreferredTime}
+                                onChange={handleChange}
+                              >
+                                <MenuItem value={1}>Morning</MenuItem>
+                                <MenuItem value={2}>Evening</MenuItem>
+                              </Field>
+                            </FormControl>
+                          </Grid>
+                          <Grid item xs={12} lg={3} mt={1}>
+                            <Typography>Bridal Type</Typography>
+                            <FormControl fullWidth>
+                              <Field
+                                as={Select}
+                                name="HomeComingBridleType"
+                                size="small"
+                                value={values.HomeComingBridleType}
+                                onChange={handleChange}
+                              >
+                                <MenuItem value={1}>Kandyan</MenuItem>
+                                <MenuItem value={2}>Indian</MenuItem>
+                                <MenuItem value={3}>Western</MenuItem>
+                                <MenuItem value={4}>Hindu</MenuItem>
+                              </Field>
+                            </FormControl>
+                          </Grid>
+                          <Grid item xs={12} lg={3} mt={1}>
+                            <Typography>Location</Typography>
+                            <FormControl fullWidth>
+                              <Field
+                                as={Select}
+                                name="HomeComingLocation"
+                                size="small"
+                                value={values.HomeComingLocation}
+                                onChange={handleChange}
+                              >
+                                <MenuItem value={1}>Studio</MenuItem>
+                                <MenuItem value={2}>Away</MenuItem>
+                                <MenuItem value={3}>Overseas</MenuItem>
+                              </Field>
+                            </FormControl>
+                          </Grid>
+                        </> : ""}
+                      <Grid item xs={12} mb={3}>
                         <Typography>Description</Typography>
                         <Field
                           as={TextField}
@@ -274,6 +353,16 @@ export default function EditApproval({ item, fetchItems }) {
                           fullWidth
                           error={touched.PaymentDate && !!errors.PaymentDate}
                           helperText={touched.PaymentDate && errors.PaymentDate}
+                        />
+                      </Grid>
+                      <Grid item xs={12} lg={6}>
+                        <Typography>Payment Code </Typography>
+                        <Field
+                          as={TextField}
+                          name="PaymentCode"
+                          type="text"
+                          size="small"
+                          fullWidth
                         />
                       </Grid>
                       <Grid item xs={12} lg={6}>

@@ -100,6 +100,10 @@ export default function AddPencilNote({
           condition: values.IsExpire && values.ReservationExpiryDate === null,
           message: "Please Enter Expiry Date",
         },
+        {
+          condition: values.ReservationFunctionType === 3 && values.HomeComingDate === null,
+          message: "Please Enter Home Coming Date",
+        },
       ];
 
       const invalidField = messages.find(({ condition }) => condition);
@@ -198,11 +202,15 @@ export default function AddPencilNote({
                     initialValues={{
                       ReservationFunctionType: 1,
                       ReservationDate: date,
+                      HomeComingDate: null,
                       CustomerName: "",
                       MobileNo: "",
                       PreferdTime: 1,
+                      HomeComingPreferredTime: 1,
                       BridleType: 1,
+                      HomeComingBridleType: 1,
                       Location: 1,
+                      HomeComingLocation: 1,
                       Description: "",
                       Type: 1,
                       IsExpire: false,
@@ -213,18 +221,8 @@ export default function AddPencilNote({
                   >
                     {({ values, handleChange }) => (
                       <Form>
-                        <Box sx={{ maxHeight: '50vh', overflowY: 'scroll' }}>
+                        <Box sx={{ maxHeight: '60vh', overflowY: 'scroll' }}>
                           <Grid container spacing={1}>
-                            {type === 3 ? <Grid item xs={12} lg={6} mt={2}>
-                              <Typography>Wedding Date</Typography>
-                              <Field
-                                as={TextField}
-                                name="ReservationDate"
-                                type="date"
-                                size="small"
-                                fullWidth
-                              />
-                            </Grid> : ""}
                             <Grid item xs={12} lg={6} mt={2}>
                               <Typography>Event Type</Typography>
                               <FormControl fullWidth>
@@ -245,6 +243,7 @@ export default function AddPencilNote({
                                 </Field>
                               </FormControl>
                             </Grid>
+
                             <Grid item xs={12} lg={6} mt={2}>
                               <Typography>Name</Typography>
                               <Field
@@ -275,7 +274,29 @@ export default function AddPencilNote({
                                 fullWidth
                               />
                             </Grid>
-                            <Grid item xs={12} lg={6} mt={2}>
+                            {values.ReservationFunctionType === 3 ?
+                              <Grid item xs={12} lg={12} mt={2}>
+                                <Typography color="primary">Wedding Details</Typography>
+                              </Grid>
+                              : ""}
+                            {values.ReservationFunctionType === 3 || type === 3 ?
+                              <>
+                                <Grid item xs={12} lg={3} mt={1}>
+                                  <Typography>Date</Typography>
+                                  <Field
+                                    as={TextField}
+                                    name="ReservationDate"
+                                    type="date"
+                                    size="small"
+                                    fullWidth
+                                    disabled
+                                  />
+                                </Grid>
+                              </>
+                              : ""}
+
+
+                            <Grid item xs={12} lg={values.ReservationFunctionType === 3 || type === 3 ? "3" : "4"} mt={1}>
                               <Typography>Preferred Time</Typography>
                               <FormControl fullWidth>
                                 <Field
@@ -290,7 +311,7 @@ export default function AddPencilNote({
                                 </Field>
                               </FormControl>
                             </Grid>
-                            <Grid item xs={12} lg={6} mt={2}>
+                            <Grid item xs={12} lg={values.ReservationFunctionType === 3 || type === 3 ? "3" : "4"} mt={1}>
                               <Typography>Bridal Type</Typography>
                               <FormControl fullWidth>
                                 <Field
@@ -307,7 +328,7 @@ export default function AddPencilNote({
                                 </Field>
                               </FormControl>
                             </Grid>
-                            <Grid item xs={12} lg={6} mt={2}>
+                            <Grid item xs={12} lg={values.ReservationFunctionType === 3 || type === 3 ? "3" : "4"} mt={1}>
                               <Typography>Location</Typography>
                               <FormControl fullWidth>
                                 <Field
@@ -323,6 +344,70 @@ export default function AddPencilNote({
                                 </Field>
                               </FormControl>
                             </Grid>
+                            {values.ReservationFunctionType === 3 ?
+                              <>
+                                <Grid item xs={12} lg={12} mt={2}>
+                                  <Typography color="primary">Home Coming Details</Typography>
+                                </Grid>
+                                <Grid item xs={12} lg={3} mt={1}>
+                                  <Typography>Home Coming Date</Typography>
+                                  <Field
+                                    as={TextField}
+                                    name="HomeComingDate"
+                                    type="date"
+                                    size="small"
+                                    fullWidth
+                                  />
+                                </Grid>
+                                <Grid item xs={12} lg={3} mt={1}>
+                                  <Typography>Preferred Time</Typography>
+                                  <FormControl fullWidth>
+                                    <Field
+                                      as={Select}
+                                      name="HomeComingPreferredTime"
+                                      size="small"
+                                      value={values.HomeComingPreferredTime}
+                                      onChange={handleChange}
+                                    >
+                                      <MenuItem value={1}>Morning</MenuItem>
+                                      <MenuItem value={2}>Evening</MenuItem>
+                                    </Field>
+                                  </FormControl>
+                                </Grid>
+                                <Grid item xs={12} lg={3} mt={1}>
+                                  <Typography>Bridal Type</Typography>
+                                  <FormControl fullWidth>
+                                    <Field
+                                      as={Select}
+                                      name="HomeComingBridleType"
+                                      size="small"
+                                      value={values.HomeComingBridleType}
+                                      onChange={handleChange}
+                                    >
+                                      <MenuItem value={1}>Kandyan</MenuItem>
+                                      <MenuItem value={2}>Indian</MenuItem>
+                                      <MenuItem value={3}>Western</MenuItem>
+                                      <MenuItem value={4}>Hindu</MenuItem>
+                                    </Field>
+                                  </FormControl>
+                                </Grid>
+                                <Grid item xs={12} lg={3} mt={1}>
+                                  <Typography>Location</Typography>
+                                  <FormControl fullWidth>
+                                    <Field
+                                      as={Select}
+                                      name="HomeComingLocation"
+                                      size="small"
+                                      value={values.HomeComingLocation}
+                                      onChange={handleChange}
+                                    >
+                                      <MenuItem value={1}>Studio</MenuItem>
+                                      <MenuItem value={2}>Away</MenuItem>
+                                      <MenuItem value={3}>Overseas</MenuItem>
+                                    </Field>
+                                  </FormControl>
+                                </Grid>
+                              </> : ""}
                             <Grid item xs={12} mt={2}>
                               <Typography>Description</Typography>
                               <Field

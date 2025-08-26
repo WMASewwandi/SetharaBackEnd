@@ -9,7 +9,17 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import { Pagination, Typography, FormControl, InputLabel, MenuItem, Select, Tooltip, IconButton } from "@mui/material";
+import {
+  Pagination,
+  Typography,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Tooltip,
+  IconButton,
+  Box,
+} from "@mui/material";
 import { ToastContainer } from "react-toastify";
 import BASE_URL from "Base/api";
 import { Search, StyledInputBase } from "@/styles/main/search-styles";
@@ -19,9 +29,10 @@ import AddInquiry from "@/components/UIElements/Modal/AddInquiry";
 import { useRouter } from "next/router";
 import { getWindowType } from "@/components/types/types";
 import BorderColorIcon from "@mui/icons-material/BorderColor";
+import DeleteConfirmationById from "@/components/UIElements/Modal/DeleteConfirmationById";
 
 export default function AllInquries() {
-  const cId = sessionStorage.getItem("category")
+  const cId = sessionStorage.getItem("category");
   const { navigate, create, update, remove, print } = IsPermissionEnabled(cId);
   const [inquiryList, setInquiryList] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -29,8 +40,7 @@ export default function AllInquries() {
   const [pageSize, setPageSize] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
   const router = useRouter();
-
-  console.log(444, create);
+  const controller = "Inquiry/DeleteInquiry";
 
   const navToNext = (inquiryDetails) => {
     router.push({
@@ -62,7 +72,9 @@ export default function AllInquries() {
     try {
       const token = localStorage.getItem("token");
       const skip = (page - 1) * size;
-      const query = `${BASE_URL}/Inquiry/GetAllInquiryByStatus?SkipCount=${skip}&MaxResultCount=${size}&Search=${search || "null"}&inquirystatus=1`;
+      const query = `${BASE_URL}/Inquiry/GetAllInquiryByStatus?SkipCount=${skip}&MaxResultCount=${size}&Search=${
+        search || "null"
+      }&inquirystatus=1`;
 
       const response = await fetch(query, {
         method: "GET",
@@ -101,7 +113,11 @@ export default function AllInquries() {
           </li>
         </ul>
       </div>
-      <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 1, md: 1, lg: 1, xl: 2 }}>
+      <Grid
+        container
+        rowSpacing={1}
+        columnSpacing={{ xs: 1, sm: 1, md: 1, lg: 1, xl: 2 }}
+      >
         <Grid item xs={12} lg={4} order={{ xs: 2, lg: 1 }}>
           <Search className="search-form">
             <StyledInputBase
@@ -112,8 +128,16 @@ export default function AllInquries() {
             />
           </Search>
         </Grid>
-        <Grid item xs={12} lg={8} mb={1} display="flex" justifyContent="end" order={{ xs: 1, lg: 2 }}>
-          {create ? <AddInquiry fetchItems={fetchInquiryList} type={1}/> : ""}
+        <Grid
+          item
+          xs={12}
+          lg={8}
+          mb={1}
+          display="flex"
+          justifyContent="end"
+          order={{ xs: 1, lg: 2 }}
+        >
+          {create ? <AddInquiry fetchItems={fetchInquiryList} type={1} /> : ""}
         </Grid>
         <Grid item xs={12} order={{ xs: 3, lg: 3 }}>
           <TableContainer component={Paper}>
@@ -138,39 +162,50 @@ export default function AllInquries() {
                   </TableRow>
                 ) : (
                   inquiryList.map((inquiry, index) => (
-                    <TableRow key={index} onClick={() => navToNext(inquiry)}>
-                      <TableCell>{inquiry.inqCode}</TableCell>
-                      <TableCell>{inquiry.customerName}</TableCell>
-                      <TableCell>
+                    <TableRow key={index}>
+                      <TableCell onClick={() => navToNext(inquiry)}>{inquiry.inqCode}</TableCell>
+                      <TableCell onClick={() => navToNext(inquiry)}>{inquiry.customerName}</TableCell>
+                      <TableCell onClick={() => navToNext(inquiry)}>
                         {inquiry.inquiryOptions.length > 0
                           ? inquiry.inquiryOptions.map((item, index) => (
-                            <React.Fragment key={index}>
-                              <span>
-                                {getWindowType(item.windowType)}
-                                {index !==
-                                  inquiry.inquiryOptions.length - 1 && " ,"}
-                              </span>
-                              {(index + 1) % 5 === 0 && <br />}
-                            </React.Fragment>
-                          ))
+                              <React.Fragment key={index}>
+                                <span>
+                                  {getWindowType(item.windowType)}
+                                  {index !==
+                                    inquiry.inquiryOptions.length - 1 && " ,"}
+                                </span>
+                                {(index + 1) % 5 === 0 && <br />}
+                              </React.Fragment>
+                            ))
                           : "-"}
                       </TableCell>
-                      <TableCell>{inquiry.styleName}</TableCell>
+                      <TableCell onClick={() => navToNext(inquiry)}>{inquiry.styleName}</TableCell>
                       <TableCell align="right">
-                        {update ? <Tooltip title="Edit" placement="top">
-                          <IconButton
-                            onClick={(e) => {
-                              navToNext(inquiry);
-                            }}
-                            aria-label="edit"
-                            size="small"
-                          >
-                            <BorderColorIcon
-                              color="primary"
-                              fontSize="inherit"
-                            />
-                          </IconButton>
-                        </Tooltip> : ""}
+                        <Box display="flex" justifyContent="end" gap={1}>
+                          {update ? (
+                          <Tooltip title="Edit" placement="top">
+                            <IconButton
+                              onClick={(e) => {
+                                navToNext(inquiry);
+                              }}
+                              aria-label="edit"
+                              size="small"
+                            >
+                              <BorderColorIcon
+                                color="primary"
+                                fontSize="inherit"
+                              />
+                            </IconButton>
+                          </Tooltip>
+                        ) : (
+                          ""
+                        )}
+                        {remove ? <DeleteConfirmationById
+                          id={inquiry.id}
+                          controller={controller}
+                          fetchItems={fetchInquiryList}
+                        /> : ""}
+                        </Box>
                       </TableCell>
                     </TableRow>
                   ))
@@ -187,7 +222,11 @@ export default function AllInquries() {
               />
               <FormControl size="small" sx={{ mr: 2, width: "100px" }}>
                 <InputLabel>Page Size</InputLabel>
-                <Select value={pageSize} label="Page Size" onChange={handlePageSizeChange}>
+                <Select
+                  value={pageSize}
+                  label="Page Size"
+                  onChange={handlePageSizeChange}
+                >
                   <MenuItem value={5}>5</MenuItem>
                   <MenuItem value={10}>10</MenuItem>
                   <MenuItem value={25}>25</MenuItem>

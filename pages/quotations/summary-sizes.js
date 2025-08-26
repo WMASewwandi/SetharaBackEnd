@@ -13,14 +13,14 @@ import {
 } from "@mui/material";
 import BASE_URL from "Base/api";
 
-export default function SizesList() {
+export default function SizesList({ inquiry }) {
   const QuotationDetails = JSON.parse(localStorage.getItem("QuotationDetails"));
   const [inquirySizeList, setInquirySizeList] = useState([]);
 
-  const fetchInquirySizeList = async () => {
+  const fetchInquirySizeList = async (inquiryId, optionId, windowType) => {
     try {
       const response = await fetch(
-        `${BASE_URL}/Inquiry/GetAllInquirySize?InquiryID=${QuotationDetails.inquiryID}&OptionId=${QuotationDetails.optionId}&WindowType=${QuotationDetails.windowType}`,
+        `${BASE_URL}/Inquiry/GetAllInquirySize?InquiryID=${inquiryId}&OptionId=${optionId}&WindowType=${windowType}`,
         {
           method: "GET",
           headers: {
@@ -41,9 +41,12 @@ export default function SizesList() {
     }
   };
 
+
   useEffect(() => {
-    fetchInquirySizeList();
-  }, []);
+    if (inquiry) {
+      fetchInquirySizeList(inquiry.inquiryId, inquiry.optionId, inquiry.windowType);
+    }
+  }, [inquiry]);
 
   return (
     <>
@@ -52,7 +55,7 @@ export default function SizesList() {
           <Typography fontWeight="bold" sx={{ mt: 1, mb: 1 }}>
             Sizes
           </Typography>
-          {QuotationDetails.windowType === 6 ? (
+          {inquiry && inquiry.windowType === 6 ? (
             <Button variant="contained" color="primary">
               Contrast
             </Button>

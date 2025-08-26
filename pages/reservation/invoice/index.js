@@ -112,26 +112,27 @@ export default function ReservationInvoice() {
             <Table aria-label="simple table" className="dark-table">
               <TableHead>
                 <TableRow>
-                  <TableCell>Document No</TableCell>
-                  <TableCell>Wedding Date</TableCell>
-                  <TableCell>Payment Date</TableCell>
-                  <TableCell>Customer Details</TableCell>
-                  <TableCell>Phone Number</TableCell>
+                  <TableCell>Doc. No</TableCell>
+                  <TableCell>Payment&nbsp;Code</TableCell>
+                  <TableCell>Wedding&nbsp;Date</TableCell>
+                  <TableCell>Payment&nbsp;Date</TableCell>
+                  <TableCell>Customer&nbsp;Details</TableCell>
+                  <TableCell>Phone&nbsp;Number</TableCell>
                   <TableCell>Description</TableCell>
-                  <TableCell>Payment Type</TableCell>
-                  <TableCell>Cash Amount</TableCell>
-                  <TableCell>Card Amount</TableCell>
-                  <TableCell>Bank Amount</TableCell>
-                  <TableCell>Paid Amount</TableCell>
-                  <TableCell>Pay Slip</TableCell>
-                  <TableCell>Total Amount</TableCell>
+                  <TableCell>Payment&nbsp;Type</TableCell>
+                  <TableCell>Cash&nbsp;Amount</TableCell>
+                  <TableCell>Card&nbsp;Amount</TableCell>
+                  <TableCell>Bank&nbsp;Amount</TableCell>
+                  <TableCell>Paid&nbsp;Amount</TableCell>
+                  <TableCell>Pay&nbsp;Slip</TableCell>
+                  <TableCell>Total&nbsp;Amount</TableCell>
                   <TableCell align="right">Action</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {invoiceList.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={10} align="center">
+                    <TableCell colSpan={11} align="center">
                       <Typography color="error">No Invoices Available</Typography>
                     </TableCell>
                   </TableRow>
@@ -139,6 +140,7 @@ export default function ReservationInvoice() {
                   invoiceList.map((invoice, index) => (
                     <TableRow key={index}>
                       <TableCell>{invoice.documentNo}</TableCell>
+                      <TableCell>{invoice.paymentCode}</TableCell>
                       <TableCell>{formatDate(invoice.weddingDate)}</TableCell>
                       <TableCell>{formatDate(invoice.paymentDate)}</TableCell>
                       <TableCell>
@@ -146,7 +148,9 @@ export default function ReservationInvoice() {
                         <Typography color="primary" sx={{ fontSize: '12px' }}>{invoice.nic}</Typography>
                       </TableCell>
                       <TableCell>{invoice.phoneNumber}</TableCell>
-                      <TableCell>{invoice.paymentDescription}</TableCell>
+                      <TableCell>
+                        {invoice.paymentDescription}
+                      </TableCell>
                       <TableCell>{getPaymentMethods(invoice.paymentType)}</TableCell>
                       <TableCell>{formatCurrency(invoice.cashAmount)}</TableCell>
                       <TableCell>{formatCurrency(invoice.cardAmount)}</TableCell>

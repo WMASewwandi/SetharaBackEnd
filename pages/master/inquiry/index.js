@@ -64,6 +64,7 @@ const InquiryCategory = () => {
   if (!navigate) {
     return <AccessDenied />;
   }
+
   return (
     <>
       <ToastContainer />

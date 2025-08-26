@@ -12,14 +12,13 @@ import {
 } from "@mui/material";
 import BASE_URL from "Base/api";
 
-export default function FabList() {
+export default function FabList({ inquiry }) {
   const [fabList, setFabList] = useState([]);
-  const QuotationDetails = JSON.parse(localStorage.getItem("QuotationDetails"));
 
-  const fetchFabricList = async () => {
+  const fetchFabricList = async (inquiryId, optionId, windowType) => {
     try {
       const response = await fetch(
-        `${BASE_URL}/Inquiry/GetAllInquiryFabric?InquiryID=${QuotationDetails.inquiryID}&OptionId=${QuotationDetails.optionId}&WindowType=${QuotationDetails.windowType}`,
+        `${BASE_URL}/Inquiry/GetAllInquiryFabric?InquiryID=${inquiryId}&OptionId=${optionId}&WindowType=${windowType}`,
         {
           method: "GET",
           headers: {
@@ -41,8 +40,10 @@ export default function FabList() {
   };
 
   useEffect(() => {
-    fetchFabricList();
-  }, []);
+    if (inquiry) {
+      fetchFabricList(inquiry.inquiryId, inquiry.optionId, inquiry.windowType);
+    }
+  }, [inquiry]);
 
   return (
     <>
@@ -67,7 +68,7 @@ export default function FabList() {
                 </TableRow>
               </TableHead>
               <TableBody>
-              {fabList.length === 0 ? (
+                {fabList.length === 0 ? (
                   <TableRow
                     sx={{
                       "&:last-child td, &:last-child th": { border: 0 },

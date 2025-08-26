@@ -38,12 +38,12 @@ export default function DeleteConfirmationById({ id, controller, fetchItems }) {
     )
       .then((response) => response.json())
       .then((data) => {
-        if (data.statusCode == 200) {
+        if (data.result.statusCode == 200) {
           toast.success(data.result.message);
           fetchItems();
           setOpen(false);
         } else {
-          toast.error(data.message);
+          toast.error(data.result.message);
         }
       })
       .catch((error) => {

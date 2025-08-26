@@ -302,3 +302,60 @@ export const getBookingPaymentStatus = (type) => {
       return "";
   }
 };
+
+
+
+export const projectStatusType = (type) => {
+  switch (type) {
+    case 1:
+      return "Quotation Created";
+    case 2:
+      return "Quotation Confirmed";
+    case 3:
+      return "Proforma Invoice Confirmed";
+    case 4:
+      return "Tech Pack Confirmed";
+    case 5:
+      return "Sample Confirmed";
+    case 6:
+      return "Proforma Invoice Rejected";
+    case 7:
+      return "Tech Pack Rejected";
+    case 8:
+      return "Sample Rejected";
+    case 9:
+      return "Quotation Rejected";
+    case 10:
+      return "Proforma Invoice Created";
+    default:
+      return "";
+  }
+};
+
+export const projectStatusColor = (type) => {
+  switch (type) {
+    case 1:
+      return "#FFC107";
+    case 2:
+      return "#4CAF50";
+    case 3:
+      return "#2196F3";
+    case 4:
+      return "#009688";
+    case 5:
+      return "#8BC34A";
+    case 6:
+      return "#F44336";
+    case 7:
+      return "#E53935";
+    case 8:
+      return "#D32F2F";
+    case 9:
+      return "#B71C1C";
+    case 10:
+      return "#2196F3";
+    default:
+      return "#9E9E9E";
+  }
+};
+

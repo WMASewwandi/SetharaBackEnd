@@ -79,22 +79,18 @@ export default function ApprovedQuotation() {
   }, []);
 
   const navigateToEdit = (quotation) => {
+    console.log(quotation);
     router.push({
       pathname: "/quotations/edit",
-      query: { status: 1 },
+      query: { id: quotation ? quotation.inquiryID : "", status: 1, option: quotation ? quotation.optionId : "" },
     });
-    const QuotationDetails = JSON.stringify(quotation);
-    localStorage.setItem("QuotationDetails", QuotationDetails);
   };
 
   const navigateToComparison = (quotation) => {
-    const customerDetails = quotation.customerDetils;
     router.push({
       pathname: "/quotations/comparison",
-      query: { status: 1, id: customerDetails != null ? customerDetails.id : "" },
+      query: { status: 1, id: quotation ? quotation.inquiryID : "", option: quotation ? quotation.optionId : "" },
     });
-    const QuotationDetails = JSON.stringify(quotation);
-    localStorage.setItem("QuotationDetails", QuotationDetails);
   };
 
   if (!navigate) {
@@ -188,10 +184,10 @@ export default function ApprovedQuotation() {
                         >
                           Comparison
                         </Button>
-                        {approve1 ? <QuotationConfirmationById
+                        {/* {approve1 ? <QuotationConfirmationById
                           id={quotation.id}
                           fetchItems={fetchQuotationList}
-                        /> : ""}
+                        /> : ""} */}
                       </Box>
                     </TableCell>
                   </TableRow>

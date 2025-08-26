@@ -23,7 +23,7 @@ const style = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: 700,
+  width: { lg: 700, xs: 350 },
   bgcolor: "background.paper",
   boxShadow: 24,
   p: 4,
@@ -48,7 +48,7 @@ export default function PrintQuotation({ quotationDet }) {
     setScroll(scrollType);
     if (quotationDet.customerDetils) {
       setOpen(true);
-    }else{
+    } else {
       setErrorOpen(true);
     }
   };
@@ -128,11 +128,10 @@ export default function PrintQuotation({ quotationDet }) {
       const filteredData = data.filter((item) => item.documentType === 7);
       const documentURLs = filteredData.map((item) => item.documentURL);
       setUrl(documentURLs[0]);
-      consolo.log(documentURLs[0]);
-    } catch (error) {}
+    } catch (error) { }
   };
 
-  useEffect(() => {    
+  useEffect(() => {
     fetchDocuments();
   }, []);
 
@@ -142,7 +141,7 @@ export default function PrintQuotation({ quotationDet }) {
         View
       </Button>
       <Modal
-      scroll={scroll}
+        scroll={scroll}
         open={open}
         onClose={handleClose}
         aria-labelledby="modal-modal-title"
@@ -150,190 +149,194 @@ export default function PrintQuotation({ quotationDet }) {
       >
         <Box sx={style} className="bg-black">
           <Grid container>
-            <Grid item xs={12} lg={6} mt={1} p={1}>
-              <Typography
-                as="h5"
-                sx={{
-                  fontWeight: "500",
-                  fontSize: "14px",
-                  mb: "8px",
-                }}
-              >
-                Date
-              </Typography>
-              <TextField
-                fullWidth
-                type="date"
-                id="outlined-basic"
-                variant="outlined"
-                value={selectedDate}
-                onChange={(e) => handleDateSelect(e.target.value)}
-              />
-            </Grid>
-            <Grid item xs={12} lg={6} mt={1} p={1}>
-              <Typography
-                as="h5"
-                sx={{
-                  fontWeight: "500",
-                  fontSize: "14px",
-                  mb: "8px",
-                }}
-              >
-                Start Date
-              </Typography>
-              <TextField
-                fullWidth
-                type="date"
-                id="outlined-basic"
-                variant="outlined"
-                value={selectedStartDate}
-                onChange={(e) => handleStartDateSelect(e.target.value)}
-              />
-            </Grid>
-            <Grid item xs={12} lg={6} mt={1} p={1}>
-              <Typography
-                as="h5"
-                sx={{
-                  fontWeight: "500",
-                  fontSize: "14px",
-                  mb: "8px",
-                }}
-              >
-                Advance Payment
-              </Typography>
-              <FormControl fullWidth>
-                <OutlinedInput
-                  value={percentage}
-                  id="outlined-adornment-amount"
-                  onChange={(e) => handlePercentageSelect(e.target.value)}
-                  endAdornment={
-                    <InputAdornment position="start">%</InputAdornment>
-                  }
-                />
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} lg={6} mt={1} p={1}>
-              <Typography
-                as="h5"
-                sx={{
-                  fontWeight: "500",
-                  fontSize: "14px",
-                  mb: "8px",
-                }}
-              >
-                Valid Days
-              </Typography>
-              <FormControl fullWidth>
-                <OutlinedInput
-                  value={validDate}
-                  id="outlined-adornment-amount"
-                  onChange={(e) => handleValidSelect(e.target.value)}
-                />
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} lg={6} mt={1} p={1}>
-              <Typography
-                as="h5"
-                sx={{
-                  fontWeight: "500",
-                  fontSize: "14px",
-                  mb: "8px",
-                }}
-              >
-                Working Days
-              </Typography>
-              <FormControl fullWidth>
-                <OutlinedInput
-                  value={handoverDate}
-                  id="outlined-adornment-amount"
-                  onChange={(e) => handleHandoverDateSelect(e.target.value)}
-                  endAdornment={
-                    <InputAdornment position="start">
-                      Working Days
-                    </InputAdornment>
-                  }
-                />
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} lg={6} mt={1} p={1}>
-              <Typography
-                as="h5"
-                sx={{
-                  fontWeight: "500",
-                  fontSize: "14px",
-                  mb: "8px",
-                }}
-              >
-                Credit Term Days
-              </Typography>
-              <FormControl fullWidth>
-                <OutlinedInput
-                  value={termDays}
-                  id="outlined-adornment-amount"
-                  onChange={(e) => handleTermDays(e.target.value)}
-                  endAdornment={
-                    <InputAdornment position="start">Days</InputAdornment>
-                  }
-                />
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} mt={1} p={1}>
-              <Typography
-                as="h5"
-                sx={{
-                  fontWeight: "500",
-                  fontSize: "14px",
-                  mb: "8px",
-                }}
-              >
-                Select Option
-              </Typography>
-              <FormControl>
-                <RadioGroup
-                  aria-labelledby="demo-row-radio-buttons-group-label"
-                  defaultValue="1"
-                  name="radio-buttons-group"
-                  value={selectedOption}
-                  onChange={handleOptionChange}
-                >
-                  <FormControlLabel
-                    value={1}
-                    control={<Radio />}
-                    label={
-                      <span>
-                        <strong>Option 1</strong> - {percentage}% Advance
-                        payment with the confirmation of the order & balance is
-                        due on prior to collection.
-                      </span>
-                    }
+            <Box sx={{ maxHeight: '60vh', overflowY: 'scroll' }}>
+              <Grid container>
+                <Grid item xs={12} lg={6} mt={1} p={1}>
+                  <Typography
+                    as="h5"
+                    sx={{
+                      fontWeight: "500",
+                      fontSize: "14px",
+                      mb: "8px",
+                    }}
+                  >
+                    Date
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    type="date"
+                    id="outlined-basic"
+                    variant="outlined"
+                    value={selectedDate}
+                    onChange={(e) => handleDateSelect(e.target.value)}
                   />
-                  <FormControlLabel
-                    sx={{ mt: 2 }}
-                    value={2}
-                    control={<Radio />}
-                    label={
-                      <span>
-                        <strong>Option 2</strong> - {percentage}% advance
-                        payment with the confirmation of the order & balance is
-                        due within {termDays} days credit after the delivery.
-                      </span>
-                    }
+                </Grid>
+                <Grid item xs={12} lg={6} mt={1} p={1}>
+                  <Typography
+                    as="h5"
+                    sx={{
+                      fontWeight: "500",
+                      fontSize: "14px",
+                      mb: "8px",
+                    }}
+                  >
+                    Start Date
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    type="date"
+                    id="outlined-basic"
+                    variant="outlined"
+                    value={selectedStartDate}
+                    onChange={(e) => handleStartDateSelect(e.target.value)}
                   />
-                  <FormControlLabel
-                    sx={{ mt: 2 }}
-                    value={3}
-                    control={<Radio />}
-                    label={
-                      <span>
-                        <strong>Option 3</strong> - Purchase Order (PO) with the
-                        confirmation of the order & payment is due within{" "}
-                        {termDays} days credit after the delivery.
-                      </span>
-                    }
-                  />
-                </RadioGroup>
-              </FormControl>
-            </Grid>
+                </Grid>
+                <Grid item xs={12} lg={6} mt={1} p={1}>
+                  <Typography
+                    as="h5"
+                    sx={{
+                      fontWeight: "500",
+                      fontSize: "14px",
+                      mb: "8px",
+                    }}
+                  >
+                    Advance Payment
+                  </Typography>
+                  <FormControl fullWidth>
+                    <OutlinedInput
+                      value={percentage}
+                      id="outlined-adornment-amount"
+                      onChange={(e) => handlePercentageSelect(e.target.value)}
+                      endAdornment={
+                        <InputAdornment position="start">%</InputAdornment>
+                      }
+                    />
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} lg={6} mt={1} p={1}>
+                  <Typography
+                    as="h5"
+                    sx={{
+                      fontWeight: "500",
+                      fontSize: "14px",
+                      mb: "8px",
+                    }}
+                  >
+                    Valid Days
+                  </Typography>
+                  <FormControl fullWidth>
+                    <OutlinedInput
+                      value={validDate}
+                      id="outlined-adornment-amount"
+                      onChange={(e) => handleValidSelect(e.target.value)}
+                    />
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} lg={6} mt={1} p={1}>
+                  <Typography
+                    as="h5"
+                    sx={{
+                      fontWeight: "500",
+                      fontSize: "14px",
+                      mb: "8px",
+                    }}
+                  >
+                    Working Days
+                  </Typography>
+                  <FormControl fullWidth>
+                    <OutlinedInput
+                      value={handoverDate}
+                      id="outlined-adornment-amount"
+                      onChange={(e) => handleHandoverDateSelect(e.target.value)}
+                      endAdornment={
+                        <InputAdornment position="start">
+                          Working Days
+                        </InputAdornment>
+                      }
+                    />
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} lg={6} mt={1} p={1}>
+                  <Typography
+                    as="h5"
+                    sx={{
+                      fontWeight: "500",
+                      fontSize: "14px",
+                      mb: "8px",
+                    }}
+                  >
+                    Credit Term Days
+                  </Typography>
+                  <FormControl fullWidth>
+                    <OutlinedInput
+                      value={termDays}
+                      id="outlined-adornment-amount"
+                      onChange={(e) => handleTermDays(e.target.value)}
+                      endAdornment={
+                        <InputAdornment position="start">Days</InputAdornment>
+                      }
+                    />
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} mt={1} p={1}>
+                  <Typography
+                    as="h5"
+                    sx={{
+                      fontWeight: "500",
+                      fontSize: "14px",
+                      mb: "8px",
+                    }}
+                  >
+                    Select Option
+                  </Typography>
+                  <FormControl>
+                    <RadioGroup
+                      aria-labelledby="demo-row-radio-buttons-group-label"
+                      defaultValue="1"
+                      name="radio-buttons-group"
+                      value={selectedOption}
+                      onChange={handleOptionChange}
+                    >
+                      <FormControlLabel
+                        value={1}
+                        control={<Radio />}
+                        label={
+                          <span>
+                            <strong>Option 1</strong> - {percentage}% Advance
+                            payment with the confirmation of the order & balance is
+                            due on prior to collection.
+                          </span>
+                        }
+                      />
+                      <FormControlLabel
+                        sx={{ mt: 2 }}
+                        value={2}
+                        control={<Radio />}
+                        label={
+                          <span>
+                            <strong>Option 2</strong> - {percentage}% advance
+                            payment with the confirmation of the order & balance is
+                            due within {termDays} days credit after the delivery.
+                          </span>
+                        }
+                      />
+                      <FormControlLabel
+                        sx={{ mt: 2 }}
+                        value={3}
+                        control={<Radio />}
+                        label={
+                          <span>
+                            <strong>Option 3</strong> - Purchase Order (PO) with the
+                            confirmation of the order & payment is due within{" "}
+                            {termDays} days credit after the delivery.
+                          </span>
+                        }
+                      />
+                    </RadioGroup>
+                  </FormControl>
+                </Grid>
+              </Grid>
+            </Box>
             <Grid item xs={12} mt={2}>
               <ViewQuotation
                 percentage={percentage}
@@ -369,7 +372,7 @@ export default function PrintQuotation({ quotationDet }) {
           <Grid container>
             <Grid item xs={12} mt={1} p={1}>
               <center>
-              <ReportGmailerrorredIcon sx={{fontSize: '30px'}} color="error"/>
+                <ReportGmailerrorredIcon sx={{ fontSize: '30px' }} color="error" />
               </center>
               <Typography variant="h6" color="error" align="center">Something went wrong!</Typography>
               <Typography color="error" align="center">Customer details not found or empty.</Typography>

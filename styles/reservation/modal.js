@@ -4,8 +4,6 @@ const style = {
   left: "50%",
   transform: "translate(-50%, -50%)",
   width: { lg: 700, xs: 400 },
-  maxHeight: "80vh",
-  overflow: "auto",
   bgcolor: "background.paper",
   boxShadow: 24,
   p: 3,

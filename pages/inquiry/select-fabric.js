@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
-import styles from "@/styles/PageTitle.module.css";
 import Link from "next/link";
 import Grid from "@mui/material/Grid";
 import {
   Box,
   Button,
   Checkbox,
-  Chip,
   Typography,
   Dialog,
   DialogActions,
@@ -58,12 +56,18 @@ export default function SelectFabric() {
               categoryFabric.inquiryCategoryId === parseInt(inqType)
           )
       );
+
+      console.log(data.result);
+      console.log(filteredFabricList);
+
       setFabricList(filteredFabricList);
       fetchValueList(filteredFabricList);
     } catch (error) {
       console.error("Error fetching Fabric List:", error);
     }
   };
+
+  
 
   const fetchValueList = async (filteredFabricList) => {
     try {

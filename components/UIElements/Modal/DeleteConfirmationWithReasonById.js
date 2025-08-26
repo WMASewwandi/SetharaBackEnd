@@ -23,7 +23,10 @@ export default function DeleteConfirmationWithReasonById({ id, controller, fetch
   const [open, setOpen] = React.useState(false);
   const [reason, setReason] = useState("");
   const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    setOpen(false);
+    setReason("");
+  };
 
   const handleSubmit = () => {
     if (reason === "") {
@@ -51,6 +54,7 @@ export default function DeleteConfirmationWithReasonById({ id, controller, fetch
             fetchItems();
           }
           setOpen(false);
+          setReason("");
         } else {
           toast.error(data.message);
         }

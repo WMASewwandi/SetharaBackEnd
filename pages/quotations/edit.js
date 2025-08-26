@@ -7,20 +7,18 @@ import BASE_URL from "Base/api";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import SummarySleeve from "pages/inquiry/tshirt/summary-sleeve";
-import DocumentListShirt from "pages/inquiry/shirt/document-list";
-import DocumentListCap from "pages/inquiry/cap/document-list";
-import DocumentListVisor from "pages/inquiry/visor/document-list";
-import DocumentListHat from "pages/inquiry/hat/document-list";
-import DocumentListBag from "pages/inquiry/bag/document-list";
-import DocumentListBottom from "pages/inquiry/bottom/document-list";
-import DocumentListShort from "pages/inquiry/short/document-list";
 import FabList from "./summary-fab";
 import SizesList from "./summary-sizes";
-import DocumentListTShirt from "pages/inquiry/tshirt/document-list";
-import SumTable from "./sum-table";
 import { useRouter } from "next/router";
-import SumTableTest from "./summary-table";
 import TableData from "./table";
+import DocumentListTShirt from "pages/inquiry/edit-inquiry/tshirt/document-list";
+import DocumentListShirt from "pages/inquiry/edit-inquiry/shirt/document-list";
+import DocumentListCap from "pages/inquiry/edit-inquiry/cap/document-list";
+import DocumentListVisor from "pages/inquiry/edit-inquiry/visor/document-list";
+import DocumentListHat from "pages/inquiry/edit-inquiry/hat/document-list";
+import DocumentListBag from "pages/inquiry/edit-inquiry/bag/document-list";
+import DocumentListBottom from "pages/inquiry/edit-inquiry/bottom/document-list";
+import DocumentListShort from "pages/inquiry/edit-inquiry/short/document-list";
 
 const style = {
   position: "absolute",
@@ -34,75 +32,118 @@ const style = {
 };
 
 export default function EditQuotation() {
-  const QuotationDetails = JSON.parse(localStorage.getItem("QuotationDetails"));
   const router = useRouter();
+  const inqId = router.query.id;
+  const optId = router.query.option;
+  const [inquiry, setInquiry] = useState(null);
+  const [isSavedFromChild, setIsSavedFromChild] = React.useState(false);
+  const [formData, setFormData] = useState(null);
+
+
+  const fetchInquiryById = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/Inquiry/GetInquiryByInquiryId?id=${inqId}&optId=${optId}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch Fabric List");
+      }
+
+      const data = await response.json();
+      const inq = data.result;
+      setInquiry(inq);
+    } catch (error) {
+      console.error("Error fetching Fabric List:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (inqId) {
+      fetchInquiryById();
+    }
+  }, []);
+
+
+  const handleSetData = (data) => {
+    setFormData(data);
+  };
+
+  const handleIsSavedChange = (value) => {
+    setIsSavedFromChild(value);
+  };
+
   const status = router.query.status;
   const [open, setOpen] = React.useState(false);
-  const [calculatedValue, setCalculatedValue] = useState();
   const handleClose = () => setOpen(false);
-  
-  const GetCalculatedValue = () => {
-    const calculated = localStorage.getItem("calculated");
-    setCalculatedValue(calculated);
-    handleSaveApprovedValues(calculated);
-  }
-  
-  const handleSaveApprovedValues = (value) => {
-    if (value === "true") {
-      const dataFromLocalStorage = JSON.parse(
-        localStorage.getItem("approveddata")
-      );
-      const token = localStorage.getItem("token");
 
-      const bodyData = {
-        InquiryID: QuotationDetails.inquiryID,
-        InqCode: QuotationDetails.inqCode,
-        WindowType: QuotationDetails.windowType,
-        OptionId: QuotationDetails.optionId,
-        InqOptionName: QuotationDetails.inqOptionName,
-        TotalUnits: QuotationDetails.totalUnits,
-        UnitCost: QuotationDetails.unitCost,
-        TotalCost: QuotationDetails.totalCost,
-        ProfitPercentage: QuotationDetails.profitPercentage,
-        UnitProfit: QuotationDetails.unitProfit,
-        TotalProfit: QuotationDetails.totalProfit,
-        SellingPrice: QuotationDetails.sellingPrice,
-        Revenue: QuotationDetails.revanue,
-        ApprovedStatus: 1,
-        ApprvedUnitCost: parseFloat(dataFromLocalStorage.unitCost) || 0,
-        ApprvedTotalCost: parseFloat(dataFromLocalStorage.totalCost) || 0,
-        ApprvedProfitPercentage:
-          parseFloat(dataFromLocalStorage.profitPercentage) || 0,
-        ApprvedUnitProfit: parseFloat(dataFromLocalStorage.profit) || 0,
-        ApprvedTotalProfit: parseFloat(dataFromLocalStorage.totalProfit) || 0,
-        ApprvedSellingPrice: parseFloat(dataFromLocalStorage.sellingPrice) || 0,
-        ApprvedRevanue: parseFloat(dataFromLocalStorage.revenue) || 0,
-        ApprvedTotalUnits: parseFloat(dataFromLocalStorage.totalUnits) || 0,
-      };
 
-      fetch(`${BASE_URL}/Inquiry/CreateOrUpdateInquirySummeryHeader`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(bodyData),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.statusCode == 200) {
-            toast.success(data.message);
-            window.location.href = '/quotations/pending-quotation/';
-          } else {
-            toast.error(data.message);
-          }
-        })
-        .catch((error) => {
-          toast.error(error.message || "");
-        });
-    } else {
-      setOpen(true);
+  const handleSaveApprovedValues = () => {
+    if (!isSavedFromChild) {
+      toast.warning("Please Update Changes");
+      return;
     }
+    const token = localStorage.getItem("token");
+
+    const bodyData = {
+      InquiryID: inquiry.inquiryId,
+      InqCode: inquiry.inquiryCode,
+      WindowType: inquiry.windowType,
+      OptionId: inquiry.optionId,
+      InqOptionName: inquiry.optionName,
+      TotalUnits: inquiry.totalUnits,
+      UnitCost: inquiry.unitCost,
+      TotalCost: inquiry.totalCost,
+      ProfitPercentage: inquiry.profitPercentage,
+      UnitProfit: inquiry.unitProfit,
+      TotalProfit: inquiry.totalProfit,
+      SellingPrice: inquiry.sellingPrice,
+      Revanue: inquiry.revenue,
+      ApprovedStatus: 1,
+      ApprvedUnitCost: parseFloat(formData.unitCost) || 0,
+      ApprvedTotalCost: parseFloat(formData.totalCost) || 0,
+      ApprvedProfitPercentage:
+        parseFloat(formData.profitPercentage) || 0,
+      ApprvedUnitProfit: parseFloat(formData.profit) || 0,
+      ApprvedTotalProfit: parseFloat(formData.totalProfit) || 0,
+      ApprvedSellingPrice: parseFloat(formData.sellingPrice) || 0,
+      ApprvedRevanue: parseFloat(formData.revenue) || 0,
+      ApprvedTotalUnits: parseFloat(formData.totalUnits) || 0,
+    };
+
+    fetch(`${BASE_URL}/Inquiry/CreateOrUpdateInquirySummeryHeader`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(bodyData),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.statusCode == 200) {
+          toast.success(data.message);
+          if (status == "1") {
+            router.push({
+              pathname: "/quotations/approved-quotation",
+            });
+          } else {
+            router.push({
+              pathname: "/quotations/pending-quotation",
+            });
+          }
+        } else {
+          toast.error(data.message);
+        }
+      })
+      .catch((error) => {
+        toast.error(error.message || "");
+      });
+
   };
 
   const navigateToBack = () => {
@@ -144,16 +185,13 @@ export default function EditQuotation() {
       >
         <Grid item xs={12} display="flex" justifyContent="space-between">
           <Box display="flex" sx={{ gap: "10px" }}>
-            {QuotationDetails.customerDetils ? (
-              <>
-                {QuotationDetails.customerDetils.firstName}{" "}
-                {QuotationDetails.customerDetils.lastName}
-              </>
-            ) : (
-              <Typography color="error">Customer Not Fount</Typography>
-            )}
-            / {QuotationDetails.inqCode} / {QuotationDetails.inqOptionName} /{" "}
-            {QuotationDetails.styleName}
+            {inquiry ?
+              inquiry.customerName
+              : (
+                <Typography color="error">Customer Not Fount</Typography>
+              )}
+            / {inquiry ? inquiry.inquiryCode : ""} / {inquiry ? inquiry.optionName : ""} /{" "}
+            {inquiry ? inquiry.styleName : ""}
           </Box>
           <Box display="flex" sx={{ gap: "10px" }}>
             <Button
@@ -171,7 +209,7 @@ export default function EditQuotation() {
               Reset
             </Button>
             <Button
-              onClick={GetCalculatedValue}
+              onClick={() => handleSaveApprovedValues()}
               variant="contained"
               color="primary"
             >
@@ -182,39 +220,37 @@ export default function EditQuotation() {
         <Grid item xs={12}>
           <Grid container>
             <Grid item xs={12} p={1} lg={5}>
-              {/* <SumTable /> */}
-              {/* <SumTableTest/> */}
-              <TableData status={status} />
-              {QuotationDetails.windowType === 1 ? <SummarySleeve /> : ""}
+              <TableData onIsSavedChange={handleIsSavedChange} inquiry={inquiry} onSummaryChange={handleSetData} />
+              {inquiry && inquiry.windowType === 1 ? <SummarySleeve /> : ""}
             </Grid>
             <Grid item xs={12} p={1} lg={7}>
               <Grid container>
                 <Grid item xs={12}>
-                  {QuotationDetails.windowType === 1 ? (
-                    <DocumentListTShirt />
-                  ) : QuotationDetails.windowType === 2 ? (
-                    <DocumentListShirt />
-                  ) : QuotationDetails.windowType === 3 ? (
-                    <DocumentListCap />
-                  ) : QuotationDetails.windowType === 4 ? (
-                    <DocumentListVisor />
-                  ) : QuotationDetails.windowType === 5 ? (
-                    <DocumentListHat />
-                  ) : QuotationDetails.windowType === 6 ? (
-                    <DocumentListBag />
-                  ) : QuotationDetails.windowType === 7 ? (
-                    <DocumentListBottom />
-                  ) : QuotationDetails.windowType === 8 ? (
-                    <DocumentListShort />
+                  {inquiry && inquiry.windowType === 1 ? (
+                    <DocumentListTShirt inquiry={inquiry}/>
+                  ) : inquiry && inquiry.windowType === 2 ? (
+                    <DocumentListShirt inquiry={inquiry}/>
+                  ) : inquiry && inquiry.windowType === 3 ? (
+                    <DocumentListCap inquiry={inquiry}/>
+                  ) : inquiry && inquiry.windowType === 4 ? (
+                    <DocumentListVisor inquiry={inquiry}/>
+                  ) : inquiry && inquiry.windowType === 5 ? (
+                    <DocumentListHat inquiry={inquiry}/>
+                  ) : inquiry && inquiry.windowType === 6 ? (
+                    <DocumentListBag inquiry={inquiry}/>
+                  ) : inquiry && inquiry.windowType === 7 ? (
+                    <DocumentListBottom inquiry={inquiry}/>
+                  ) : inquiry && inquiry.windowType === 8 ? (
+                    <DocumentListShort inquiry={inquiry}/>
                   ) : null}
                 </Grid>
                 <Grid item xs={12}>
-                  <FabList />
+                  <FabList inquiry={inquiry}/>
                 </Grid>
               </Grid>
             </Grid>
             <Grid item xs={12} p={1}>
-              <SizesList />
+              <SizesList inquiry={inquiry}/>
             </Grid>
           </Grid>
         </Grid>

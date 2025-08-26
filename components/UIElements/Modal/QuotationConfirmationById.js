@@ -18,15 +18,15 @@ const style = {
   p: 3,
 };
 
-export default function QuotationConfirmationById({fetchItems, id }) {
+export default function QuotationConfirmationById({ fetchItems, id, sentQuotId }) {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
   const handleSubmit = () => {
     const token = localStorage.getItem("token");
-    
-    fetch(`${BASE_URL}/Inquiry/UpdateProjectStatus?summeryPanelHeaderId=${id}&InquiryStatus=6`, {
+
+    fetch(`${BASE_URL}/Inquiry/UpdateProjectStatus?summeryPanelHeaderId=${id}&InquiryStatus=6&sentQuotId=${sentQuotId}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -35,7 +35,7 @@ export default function QuotationConfirmationById({fetchItems, id }) {
     })
       .then((response) => response.json())
       .then((data) => {
-        if (data.statusCode == 200) {          
+        if (data.statusCode == 200) {
           setOpen(false);
           toast.success(data.result.message);
           fetchItems();

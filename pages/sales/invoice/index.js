@@ -37,8 +37,12 @@ export default function Invoice() {
   const { data: POSInvoiceReportName } = GetReportSettingValueByName("POSInvoice");
   const { result: shiftResult, message: shiftMessage } = useShiftCheck();
   const { data: isBookingSystem } = IsAppSettingEnabled(
-      "IsBookingSystem"
-    );
+    "IsBookingSystem"
+  );
+
+  const { data: isDoctorInvolved } = IsAppSettingEnabled(
+    "IsDoctorInvolved"
+  );
   const {
     data: invoiceList,
     totalCount,
@@ -139,6 +143,12 @@ export default function Invoice() {
                   {!isBookingSystem && (<TableCell>Warehouse</TableCell>)}
                   <TableCell>Net Total (Rs)</TableCell>
                   <TableCell>Customer</TableCell>
+                  {isDoctorInvolved && (
+                    <>
+                      <TableCell>Doctor</TableCell>
+                      <TableCell>Patient Reg. No</TableCell>
+                    </>
+                  )}
                   <TableCell>Remark</TableCell>
                   <TableCell align="right">Action</TableCell>
                 </TableRow>
@@ -163,9 +173,15 @@ export default function Invoice() {
                         <TableCell>{index + 1}</TableCell>
                         <TableCell>{formatDate(item.documentDate)}</TableCell>
                         <TableCell>{item.documentNo}</TableCell>
-                         {!isBookingSystem && (<TableCell>{item.warehouseName}</TableCell>)}                        
+                        {!isBookingSystem && (<TableCell>{item.warehouseName}</TableCell>)}
                         <TableCell>{formatCurrency(item.netTotal)}</TableCell>
                         <TableCell>{item.customerName}</TableCell>
+                        {isDoctorInvolved && (
+                          <>
+                            <TableCell>{item.doctorName}</TableCell>
+                            <TableCell>{item.regNo}</TableCell>
+                          </>
+                        )}
                         <TableCell>{item.remark}</TableCell>
                         <TableCell align="right">
                           <Box display="flex" justifyContent="end" gap={1}>
@@ -185,7 +201,7 @@ export default function Invoice() {
                                   </IconButton>
                                 </a>
                               </Tooltip></> : ""}
-                            <CancelConfirmationById invId={item.id} fetchItems={fetchInvoiceList} />
+                            {remove ? <CancelConfirmationById invId={item.id} fetchItems={fetchInvoiceList} /> : ""}
                           </Box>
                         </TableCell>
                       </TableRow>

@@ -12,12 +12,14 @@ import {
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
-import { Card, Grid, Typography } from "@mui/material";
+import { Card, Grid, TextField, Typography } from "@mui/material";
 import ShareIcon from "@mui/icons-material/Share";
 import BASE_URL from "Base/api";
 import DocSubType from "pages/inquiry/Types/docSubType";
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import { formatDateWithTime } from "@/components/utils/formatHelper";
+import IsAppSettingEnabled from "@/components/utils/IsAppSettingEnabled";
 // import { Font } from "@react-pdf/renderer";
 
 // Font.register({
@@ -128,6 +130,21 @@ const styles = StyleSheet.create({
   },
 });
 
+function formatDateTime(date) {
+  const pad = (n) => n.toString().padStart(2, "0");
+
+  return (
+    date.getFullYear().toString() +
+    pad(date.getMonth() + 1) +
+    pad(date.getDate()) +
+    "T" +
+    pad(date.getHours()) +
+    pad(date.getMinutes()) +
+    pad(date.getSeconds())
+  );
+}
+
+
 export default function ViewQuotation({
   quotDetails,
   selectedOption,
@@ -139,17 +156,28 @@ export default function ViewQuotation({
   handoverDate,
   url,
 }) {
+  const today = new Date();
   const [open, setOpen] = useState(false);
   const [fabs, setFabs] = useState([]);
   const [doc, setDoc] = useState();
   const [shareURL, setShareURL] = useState(url);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [openShare, setOpenShare] = useState(false);
   const [selectedCard, setSelectedCard] = useState(0);
   const [whatsappNo, setWhatsappNo] = useState("");
   const [message, setMessage] = useState("");
   const handleShareClose = () => setOpenShare(false);
+  const { data: IsShareWhatsAppAPIThrough } = IsAppSettingEnabled("IsShareWhatsAppAPIThrough");
+
+  function parseFormattedDate(dateStr) {
+    const [day, monthName, year] = dateStr.split(" ");
+    const utcDate = new Date(`${monthName} ${day}, ${year} 00:00:00 UTC`);
+    return new Date(utcDate.getTime() + (5.5 * 60 * 60 * 1000));
+  }
+
 
   const handleCardClick = (id) => {
     setSelectedCard(id);
@@ -239,7 +267,44 @@ export default function ViewQuotation({
     fetchFabricValueList();
   }, []);
 
+  const handleOpenWhatsappTemp = (documentUrl) => {
+    const encodedMessage = encodeURIComponent(`${documentUrl}`);
+    window.open(`https://wa.me/?text=${encodedMessage}`, "_blank");
+  };
+
   const handleShareNow = async () => {
+    const cus = quotDetails.customerDetils;
+
+    const data = {
+      InquiryId: quotDetails.inquiryID,
+      InquiryCode: quotDetails.inqCode,
+      ProfitPercentage: quotDetails.apprvedProfitPercentage,
+      UnitProfit: quotDetails.apprvedUnitProfit,
+      SellingPrice: quotDetails.apprvedSellingPrice,
+      UnitCost: quotDetails.apprvedUnitCost,
+      TotalCost: quotDetails.apprvedTotalCost,
+      Quantity: quotDetails.apprvedTotalUnits,
+      Revenue: quotDetails.apprvedRevanue,
+      TotalProfit: quotDetails.apprvedTotalProfit,
+      QuotationId: quotDetails.id,
+      OptionName: quotDetails.inqOptionName,
+      StyleName: quotDetails.styleName,
+      OptionId: quotDetails.optionId,
+      SentDate: parseFormattedDate(selectedDate),
+      StartDate: parseFormattedDate(startDate),
+      AdvancePaymentPercentage: percentage,
+      ValidDays: validDate,
+      WorkingDays: handoverDate,
+      CreditTermDays: termDay,
+      SelectedOption: selectedOption,
+      CustomerId: cus.id,
+      CustomerName: cus.firstName + " " + cus.lastName,
+      SentWhatsappNumber: whatsappNo,
+      DocumentURL: shareURL,
+      ProjectConfirmType: 1,
+    };
+
+
     const url = shareURL;
     if (!url || typeof url !== "string") {
       console.log("Invalid URL");
@@ -247,25 +312,47 @@ export default function ViewQuotation({
 
     if (selectedCard == 0) {
       const phoneNumber = whatsappNo;
-      try {
-        const apiUrl = `https://api.textmebot.com/send.php?recipient=${phoneNumber}&apikey=781LrdZkpdLh&document=${encodeURIComponent(
-          url
-        )}`;
-        const response = await fetch(apiUrl, {
-          method: "GET", 
-          mode: 'no-cors',
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-            "Content-Type": "application/json",
-          },
-        });
-      } catch (error) {
-        // console.error("Error sending document:", error);
+      if (IsShareWhatsAppAPIThrough) {
+        try {
+          const apiUrl = `https://api.textmebot.com/send.php?recipient=${phoneNumber}&apikey=781LrdZkpdLh&document=${encodeURIComponent(
+            url
+          )}`;
+          const response = await fetch(apiUrl, {
+            method: "GET",
+            mode: 'no-cors',
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+              "Content-Type": "application/json",
+            },
+          });
+        } catch (error) {
+          // console.error("Error sending document:", error);
+        }
+        toast.success("Document Sent Successfully");
+      } else {
+        handleOpenWhatsappTemp(url);
       }
-      toast.success("Document Sent Successfully");
       setOpenShare(false);
-      setOpen(false);  
-      console.clear();   
+      setOpen(false);
+
+      try {
+        setLoading(true);
+
+        const res = await fetch(`${BASE_URL}/Inquiry/CreateSentQuotation`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify(data),
+        });
+        const result = await res.json();
+      } catch (err) {
+        toast.error(err.message || "");
+      } finally {
+        setLoading(false);
+      }
+      console.clear();
       // const whatsappURL = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(
       //   message
       // )}`;
@@ -305,22 +392,22 @@ export default function ViewQuotation({
     }
   };
 
-  const window =
+  const windowType =
     quotDetails.windowType == 1
       ? "T-Shirt"
       : quotDetails.windowType == 2
-      ? "Shirt"
-      : quotDetails.windowType == 3
-      ? "Cap"
-      : quotDetails.windowType == 4
-      ? "Visor"
-      : quotDetails.windowType == 5
-      ? "Hat"
-      : quotDetails.windowType == 6
-      ? "Bag"
-      : quotDetails.windowType == 7
-      ? "Bottom"
-      : "Short";
+        ? "Shirt"
+        : quotDetails.windowType == 3
+          ? "Cap"
+          : quotDetails.windowType == 4
+            ? "Visor"
+            : quotDetails.windowType == 5
+              ? "Hat"
+              : quotDetails.windowType == 6
+                ? "Bag"
+                : quotDetails.windowType == 7
+                  ? "Bottom"
+                  : "Short";
 
   const MyDocument = (
     <Document>
@@ -394,7 +481,7 @@ export default function ViewQuotation({
               <Text
                 style={{ ...styles.tablecell2, borderLeft: 0, borderRight: 0 }}
               >
-                {window}
+                {windowType}
               </Text>
             </View>
             <View style={{ flexGrow: 1 }}>
@@ -403,11 +490,11 @@ export default function ViewQuotation({
                 {fabs.length === 0
                   ? "-"
                   : fabs.map((fab, index) => (
-                      <React.Fragment key={index}>
-                        {fab.fabricName}
-                        {index < fabs.length - 1 ? ", " : ""}
-                      </React.Fragment>
-                    ))}
+                    <React.Fragment key={index}>
+                      {fab.fabricName}
+                      {index < fabs.length - 1 ? ", " : ""}
+                    </React.Fragment>
+                  ))}
               </Text>
             </View>
             <View style={{ flexGrow: 1 }}>
@@ -517,6 +604,7 @@ export default function ViewQuotation({
   const UploadPDF = async () => {
     const pdfContent = MyDocument;
     try {
+      setSaving(true);
       const blob = await pdf(pdfContent).toBlob();
       const formData = new FormData();
       formData.append("File", blob, `quotation.${quotDetails.inqCode}.pdf`);
@@ -527,7 +615,7 @@ export default function ViewQuotation({
       formData.append("DocumentType", 7);
       formData.append("DocumentContentType", 6);
       formData.append("DocumentSubContentType", 5);
-      formData.append("FileName", `quotation.${quotDetails.InqCode}.pdf`);
+      formData.append("FileName", `quotation.${formatDateTime(today)}.pdf`);
 
       const response = await fetch(`${BASE_URL}/AWS/DocumentUpload`, {
         method: "POST",
@@ -547,6 +635,8 @@ export default function ViewQuotation({
       }
     } catch (error) {
       console.error("Error uploading PDF:", error);
+    } finally {
+      setSaving(false);
     }
   };
   return (
@@ -583,13 +673,14 @@ export default function ViewQuotation({
               justifyContent="space-between"
             >
               <Box>
-                <Button variant="outlined" sx={{ ml: 1 }} onClick={handleSave}>
-                  Save Quotation
+                <Button disabled={saving} variant="outlined" sx={{ ml: 1 }} onClick={handleSave}>
+                  {saving ? "Saving..." : "Save Quotation"}
                 </Button>
                 <Button
                   variant="outlined"
                   sx={{ ml: 1 }}
                   onClick={handleShareOpen}
+                  disabled={saving}
                 >
                   <ShareIcon sx={{ mr: 3 }} /> Share
                 </Button>
@@ -702,8 +793,8 @@ export default function ViewQuotation({
               ></Card>
             </Grid>
             <Grid item xs={12} mt={2}>
-              <Button variant="outlined" onClick={handleShareNow}>
-                Share Now
+              <Button disabled={loading} variant="outlined" onClick={handleShareNow}>
+                {loading ? "Sending..." : "Share Now"}
               </Button>
             </Grid>
           </Grid>

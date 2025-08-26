@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Grid, IconButton, Tooltip, Typography } from "@mui/material";
+import { Grid, IconButton, TextField, Tooltip, Typography } from "@mui/material";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
@@ -21,13 +21,21 @@ const style = {
 
 export default function CancelConfirmation({id,fetchItems}) {
   const [open, setOpen] = React.useState(false);
+  const [reason, setReason] = React.useState("");
   const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    setOpen(false);
+    setReason("");
+  };
 
   const handleSubmit = () => {
+    if(reason === ""){
+      toast.info("Please Enter Reason");
+      return;
+    }
     const token = localStorage.getItem("token");
     fetch(
-      `${BASE_URL}/Reservation/CancelReservation?reservationId=${id}`,
+      `${BASE_URL}/Reservation/CancelReservation?reservationId=${id}&reason=${reason}`,
       {
         method: "POST",
         headers: {
@@ -42,6 +50,7 @@ export default function CancelConfirmation({id,fetchItems}) {
           toast.success(data.message);
           fetchItems();
           setOpen(false);
+          setReason("");
         } else {
           toast.error(data.message);
         }
@@ -78,6 +87,7 @@ export default function CancelConfirmation({id,fetchItems}) {
                 >
                   Are you sure you want to cancel this ?
                 </Typography>
+                <TextField fullWidth value={reason} placeholder="Please Enter Reason" type="text" onChange={(e)=> setReason(e.target.value)}/>
               </Grid>
             </Grid>
           </Box>

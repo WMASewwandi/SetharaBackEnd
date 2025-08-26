@@ -103,6 +103,7 @@ export default function Reservation() {
       (tabIndex === 2 && item.status === 4)
   );
 
+  
   return (
     <>
       <ToastContainer />
@@ -138,27 +139,27 @@ export default function Reservation() {
             <Table aria-label="simple table" className="dark-table">
               <TableHead>
                 <TableRow>
-                  <TableCell>Document No</TableCell>
-                  <TableCell>Wedding Date</TableCell>
-                  <TableCell>Event Type</TableCell>
+                  <TableCell>Doc. No</TableCell>
+                  <TableCell>Wedding&nbsp;Date</TableCell>
+                  <TableCell>Event&nbsp;Type</TableCell>
                   <TableCell>Name</TableCell>
-                  <TableCell>Name of Groom</TableCell>
+                  <TableCell>Groom&nbsp;Name</TableCell>
                   <TableCell>NIC/Passport No</TableCell>
-                  <TableCell>Phone Number</TableCell>
-                  <TableCell>Preferd Time</TableCell>
-                  <TableCell>Bridal Type</TableCell>
-                  <TableCell>Total Maids</TableCell>
-                  <TableCell>Next Appointment</TableCell>
+                  <TableCell>Phone&nbsp;Number</TableCell>
+                  <TableCell>Preferd&nbsp;Time</TableCell>
+                  <TableCell>Bridal&nbsp;Type</TableCell>
+                  <TableCell>Total&nbsp;Maids</TableCell>
+                  <TableCell>Next&nbsp;Appointment</TableCell>
                   <TableCell>Status</TableCell>
-                  <TableCell>Create Date</TableCell>
                   <TableCell>Remark</TableCell>
+                  {tabIndex === 1 ? <TableCell>Canceled&nbsp;Reason</TableCell> : ""}
                   <TableCell>Action</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {filteredData.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={16} align="center">
+                    <TableCell colSpan={15} align="center">
                       <Typography color="error">No Reservations Available</Typography>
                     </TableCell>
                   </TableRow>
@@ -192,8 +193,8 @@ export default function Reservation() {
 
                         )}
                       </TableCell>
-                      <TableCell>{formatDate(reservation.createdOn)}</TableCell>
                       <TableCell>{reservation.reservationDetails.remark}</TableCell>
+                      {tabIndex === 1 ? <TableCell>{reservation.canceledReason}</TableCell> : ""}
                       <TableCell>
                         <Box display="flex" gap={1}>
                           {update && tabIndex == 0 ? <UpdateReservation reservation={reservation} fetchItems={fetchResList} /> : ""}

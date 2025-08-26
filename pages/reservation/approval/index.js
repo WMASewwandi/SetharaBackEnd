@@ -137,14 +137,15 @@ export default function Approval() {
             <Table className="dark-table">
               <TableHead>
                 <TableRow>
-                  <TableCell>Document No</TableCell>
-                  <TableCell>Wedding Date</TableCell>
+                  <TableCell>Doc. No</TableCell>
+                  <TableCell>Payment Code</TableCell>
+                  <TableCell>Wedding&nbsp;Date</TableCell>
                   {tabIndex === 0 || tabIndex === 2 ? (
-                    <TableCell>Payment Date</TableCell>
+                    <TableCell>Payment&nbsp;Date</TableCell>
                   ) : (
                     ""
                   )}
-                  <TableCell>Customer Name</TableCell>
+                  <TableCell>Customer&nbsp;Name</TableCell>
                   <TableCell>Mobile No</TableCell>
                   <TableCell>NIC/Passport</TableCell>
                   <TableCell>Description</TableCell>
@@ -168,7 +169,7 @@ export default function Approval() {
               <TableBody>
                 {filteredData.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={12} align="center">
+                    <TableCell colSpan={13} align="center">
                       <Typography color="error">
                         No Reservations Available
                       </Typography>
@@ -178,19 +179,22 @@ export default function Approval() {
                   filteredData.map((item, index) => (
                     <TableRow key={index} sx={{ background: item.isFinalPaymentDone ? '#F8F8E1' : "" }}>
                       <TableCell>{item.documentNo}</TableCell>
+                      <TableCell>{item.paymentCode}</TableCell>
                       <TableCell>{formatDate(item.weddingDate)}</TableCell>
                       {tabIndex === 0 || tabIndex === 2 ? (
                         <TableCell>{formatDate(item.paymentDate)}</TableCell>
                       ) : (
                         ""
                       )}
-                      <TableCell>{item.customerName}</TableCell>
+                      <TableCell>
+                        {item.customerName}
+                      </TableCell>
                       <TableCell>{item.mobileNo}</TableCell>
                       <TableCell>{item.nic}</TableCell>
                       <TableCell>
                         {item.description}
                       </TableCell>
-                       <TableCell>
+                      <TableCell>
                         {item.paymentDescription}
                       </TableCell>
                       <TableCell>{getPaymentMethods(item.paymentType)}</TableCell>

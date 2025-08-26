@@ -150,25 +150,26 @@ const InnerCalendar = () => {
 
     const formattedResDate = allNotes.map((note) => ({
       ...note,
-      reservationDate: new Date(note.reservationDate).toLocaleDateString(
-        "en-CA"
-      ),
+      reservationDate: note.reservationDate
+        ? new Date(note.reservationDate).toLocaleDateString("en-CA")
+        : null,
+      homeComingDate: note.homeComingDate
+        ? new Date(note.homeComingDate).toLocaleDateString("en-CA")
+        : null,
     }));
 
     const notesForDay = formattedResDate.filter(
       (note) =>
-        note.reservationDate === formattedDay && note.isDeleted === false
+        !note.isDeleted &&
+        (note.reservationDate === formattedDay || note.homeComingDate === formattedDay)
     );
 
     if (notesForDay.length > 0) {
-      const bookedCount = notesForDay.filter(
-        (note) => note.type === type
-      ).length;
+      const bookedCount = notesForDay.filter((note) => note.type === type).length;
 
       return (
-        <>
-          <Typography
-            className={`text-start ${bookedCount > 0
+        <Typography
+          className={`text-start ${bookedCount > 0
               ? type === 1
                 ? "text-pencil-note"
                 : type === 2
@@ -177,20 +178,18 @@ const InnerCalendar = () => {
                     ? "text-pending"
                     : "text-booked"
               : ""
-              }`}
-            sx={{ padding: 0, fontSize: "14px" }}
-          >
-            {bookedCount != 0 ? (
-              <>
-                {bookedCount} {getLabel(type)}
-              </>
-            ) : (
-              ""
-            )}
-          </Typography>
-        </>
+            }`}
+          sx={{ padding: 0, fontSize: "14px" }}
+        >
+          {bookedCount !== 0 && (
+            <>
+              {bookedCount} {getLabel(type)}
+            </>
+          )}
+        </Typography>
       );
     }
+
     return null;
   };
 
@@ -198,20 +197,25 @@ const InnerCalendar = () => {
     const formattedDay = `${selectedDate.split("-")[0]}-${selectedDate.split("-")[1]
       }-${String(day).padStart(2, "0")}`;
 
-    const formattedResDate = allNotes.map((note) => ({
+    const formattedNotes = allNotes.map((note) => ({
       ...note,
-      reservationDate: new Date(note.reservationDate).toLocaleDateString(
-        "en-CA"
-      ),
+      reservationDate: note.reservationDate
+        ? new Date(note.reservationDate).toLocaleDateString("en-CA")
+        : null,
+      homeComingDate: note.homeComingDate
+        ? new Date(note.homeComingDate).toLocaleDateString("en-CA")
+        : null,
     }));
 
-    return formattedResDate.filter(
+    return formattedNotes.filter(
       (note) =>
-        note.reservationDate === formattedDay && note.isDeleted === false
+        !note.isDeleted &&
+        (note.reservationDate === formattedDay || note.homeComingDate === formattedDay)
     );
   };
 
-  const renderNotes = (type, title, Icon, iconColor) => {
+
+  const renderNotes = (type, title) => {
     const notesForSelectedDate = getNotesForDay(selectedDay);
     if (notesForSelectedDate) {
       const filteredNotes = notesForSelectedDate.filter(
@@ -424,7 +428,7 @@ const InnerCalendar = () => {
                     Pencil Notes
                   </Typography>
                 </Divider>
-                <Box>{renderNotes(1, "Pencil Notes", PendingIcon, "gray")}</Box>
+                <Box>{renderNotes(1, "Pencil Notes")}</Box>
               </Grid>
               <Grid
                 sx={{ background: "#BAD8B6", borderRadius: "10px" }}
@@ -441,9 +445,7 @@ const InnerCalendar = () => {
                 <Box>
                   {renderNotes(
                     5,
-                    "Confirmed Bookings",
-                    CheckCircleIcon,
-                    "success"
+                    "Confirmed Bookings"
                   )}
                 </Box>
               </Grid>
@@ -460,7 +462,7 @@ const InnerCalendar = () => {
                   </Typography>
                 </Divider>
                 <Box>
-                  {renderNotes(3, "Payment Approval", PauseIcon, "warning")}
+                  {renderNotes(3, "Payment Approval")}
                 </Box>
               </Grid>
               <Grid
@@ -476,7 +478,7 @@ const InnerCalendar = () => {
                   </Typography>
                 </Divider>
                 <Box>
-                  {renderNotes(2, "Other Notes", EventNoteIcon, "secondary")}
+                  {renderNotes(2, "Other Notes")}
                 </Box>
               </Grid>
 

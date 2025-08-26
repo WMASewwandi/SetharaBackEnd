@@ -147,9 +147,10 @@ export default function MakePayment({
     formData.append("ReservationId", values.ReservationId);
     formData.append("BalanceAmount", balanceAmount || 0);
     formData.append("TotalAmount", values.PaidAmount || 0);
-    formData.append("PaymentDescription", values.PaymentDescription);
+    formData.append("PaymentDescription", values.PaymentDescription || "");
     formData.append("Institution", null);
     formData.append("DocumentNo", documentNo);
+    formData.append("PaymentCode", values.PaymentCode || "");
     formData.append("IsFinalPayment", res.type === 11 ? true : false);
 
     setLoading(true);
@@ -213,6 +214,7 @@ export default function MakePayment({
               BankAmount: "",
               IsApproved: false,
               FileName: "",
+              PaymentCode: "",
               File: null,
               ReservationId: resId,
             }}
@@ -306,17 +308,7 @@ export default function MakePayment({
                           ))}
                         </Grid>
                       </RadioGroup>
-                    </Grid>
-                    <Grid item xs={12} lg={6}>
-                      <Typography>Payment Description</Typography>
-                      <Field
-                        as={TextField}
-                        fullWidth
-                        name="PaymentDescription"
-                        type="text"
-                        placeholder="Enter Description"
-                      />
-                    </Grid>
+                    </Grid>                    
                     <Grid item xs={12} lg={6}>
                       <Typography>Date</Typography>
                       <Field
@@ -331,6 +323,25 @@ export default function MakePayment({
                         inputProps={{
                           max: new Date().toISOString().split("T")[0],
                         }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} lg={6}>
+                      <Typography>Payment Code</Typography>
+                      <Field
+                        as={TextField}
+                        fullWidth
+                        name="PaymentCode"
+                        type="text"
+                      />
+                    </Grid>
+                    <Grid item xs={12} lg={12}>
+                      <Typography>Payment Description</Typography>
+                      <Field
+                        as={TextField}
+                        fullWidth
+                        name="PaymentDescription"
+                        type="text"
+                        placeholder="Enter Description"
                       />
                     </Grid>
                     {[1, 2, 3, 4].includes(selectedValue) && (

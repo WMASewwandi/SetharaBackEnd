@@ -23,6 +23,7 @@ import ReservationSalesReport from "@/components/UIElements/Modal/Reports/Summer
 import IsReportSettingEnabled from "@/components/utils/IsReportSettingEnabled";
 import FiscalPeriodReport from "@/components/UIElements/Modal/Reports/Summery/FiscalPeriodReport";
 import CashFlowSummaryReport from "@/components/UIElements/Modal/Reports/Summery/CashFlowSummaryReport";
+import CustomerPaymentSummaryReport from "@/components/UIElements/Modal/Reports/Summery/CustomerPaymentSummaryReport";
 
 const rawReports = [
   { id: 1, name: "Company Profit Report", reportName: "CompanyWiseProfit", component: CompanyProfit, docName: "PrintDocumentsSupplierDateLocal" },
@@ -36,6 +37,7 @@ const rawReports = [
   { id: 9, name: "Reservation Sales Report", reportName: "ReservationSalesReport", component: ReservationSalesReport, docName: "PrintReservationSalesLocal" },
   { id: 10, name: "Fiscal Period Report", reportName: "FiscalPeriodReport", component: FiscalPeriodReport, docName: "PrintDocumentsLocal" },
   { id: 11, name: "Cash Flow Summary Report", reportName: "CashFlowSummaryReport", component: CashFlowSummaryReport, docName: "PrintCashFlowSummaryReportLocal" },
+  { id: 12, name: "Customer Payment Summary Report", reportName: "CustomerPaymentSummaryReport", component: CustomerPaymentSummaryReport, docName: "PrintCustomerPaymentSummaryReportLocal" },
 ];
 
 

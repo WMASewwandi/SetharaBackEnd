@@ -33,10 +33,8 @@ export default function PendingQuotation() {
   const navigateToEdit = (quotation) => {
     router.push({
       pathname: "/quotations/edit",
-      query: { status: 0 },
+      query: { id: quotation ? quotation.inquiryID : "", status: 0 ,option : quotation ? quotation.optionId : ""},
     });
-    const QuotationDetails = JSON.stringify(quotation);
-    localStorage.setItem("QuotationDetails", QuotationDetails);
   };
 
   const handleSearchChange = (event) => {
@@ -121,7 +119,7 @@ export default function PendingQuotation() {
                   <TableCell>Customer</TableCell>
                   <TableCell>Style Name</TableCell>
                   <TableCell>Option</TableCell>
-                  <TableCell>Window Type</TableCell>                  
+                  <TableCell>Window Type</TableCell>
                   <TableCell>Created On</TableCell>
                   <TableCell align="right">Action</TableCell>
                 </TableRow>
@@ -151,7 +149,7 @@ export default function PendingQuotation() {
                       <TableCell>{formatDate(quotation.createdOn)}</TableCell>
                       <TableCell align="right">
                         {update ? <Button onClick={() => navigateToEdit(quotation)} variant="outlined">Edit</Button> : ""}
-                        {remove ? <DeleteConfirmation fetchItems={fetchQuotationList} quotation={quotation}/> : ""}
+                        {remove ? <DeleteConfirmation fetchItems={fetchQuotationList} quotation={quotation} /> : ""}
                       </TableCell>
                     </TableRow>
                   ))

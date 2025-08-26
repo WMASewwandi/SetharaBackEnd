@@ -13,207 +13,180 @@ import {
 import BASE_URL from "Base/api";
 import { formatCurrency } from "@/components/utils/formatHelper";
 
-export default function TableData({ status }) {
-  const optionDetails = JSON.parse(localStorage.getItem("QuotationDetails"));
+export default function TableData({ onIsSavedChange, inquiry, onSummaryChange }) {
   const [items, setItems] = useState([]);
-  const [patternItem, setPatternItem] = useState({
-    quantity: 0,
-    totalCost: 0,
-    unitCost: 0,
-  });
+  const [patternItem, setPatternItem] = useState({});
   const [patternQuantity, setPatternQuantity] = useState(0);
   const [patternTotalCost, setPatternTotalCost] = useState(0);
   const [patternUCost, setPatternUCost] = useState(0);
-  const [changedItems, setChangedItems] = useState([]);
+
   const [totalCost, setTotalCost] = useState(0);
   const [noOfUnits, setNoOfUnits] = useState(0);
   const [finalUnitCost, setFinalUnitCost] = useState(0);
-  const [profit, setProfit] = useState(0);
   const [totalProfit, setTotalProfit] = useState(0);
   const [revenue, setRevenue] = useState(0);
   const [sellingPrice, setSellingPrice] = useState(0);
   const [profitPercentage, setProfitPercentage] = useState(10);
-  const [calculationValues, setCalculationValues] = useState([]);
-  const [rawSellingPrice, setRawSellingPrice] = useState("");
   const [rawProfit, setRawProfit] = useState("");
 
-  const fetchItems = async () => {
+  useEffect(() => {
+    const fetchData = async () => {
+      if (inquiry) {
+        await fetchQuotationDataList(
+          inquiry.inquiryId,
+          inquiry.optionId,
+          inquiry.windowType
+        );
+        await fetchItems(inquiry.inquiryId, inquiry.optionId, inquiry.windowType);
+        await fetchPattern(inquiry.inquiryId, inquiry.optionId, inquiry.windowType);
+      }
+
+    };
+    fetchData();
+  }, [inquiry]);
+
+  useEffect(() => {
+    if (items.length > 0 || patternTotalCost > 0) {
+      const allItems = [
+        ...items.map(i => ({ TotalCost: i.approvedTotalCost })),
+        { TotalCost: patternTotalCost },
+      ];
+      computeTotalCost(allItems);
+    }
+  }, [items, patternTotalCost]);
+
+  const fetchItems = async (inquiryId, optionId, windowType) => {
     try {
       const response = await fetch(
-        `${BASE_URL}/Inquiry/GetAllInquirySummeryTableItems?InquiryID=${optionDetails.inquiryID}&OptionId=${optionDetails.optionId}&WindowType=${optionDetails.windowType}`,
+        `${BASE_URL}/Inquiry/GetAllInquirySummeryTableItems?InquiryID=${inquiryId}&OptionId=${optionId}&WindowType=${windowType}`,
         {
-          method: "GET",
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
-            "Content-Type": "application/json",
           },
         }
       );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch Size List");
-      }
+      if (!response.ok) throw new Error("Failed to fetch items");
 
       const data = await response.json();
-      const updatedItems = data.result.map((item) => ({
-        ...item,
-        totalCost: item.quantity * item.unitCost,
-      }));
-      setItems(updatedItems);
-      setNoOfUnits(data.result[0].quantity);
+      setItems(data.result);
+      setNoOfUnits(data.result[0]?.quantity ?? 0);
     } catch (error) {
-      console.error("Error fetching Size List:", error);
+      console.error(error);
     }
   };
 
-  const fetchPattern = async () => {
+  const fetchPattern = async (inquiryId, optionId, windowType) => {
     try {
       const response = await fetch(
-        `${BASE_URL}/Inquiry/GetAllInquirySummeryLinesPattern?InquiryID=${optionDetails.inquiryID}&OptionId=${optionDetails.optionId}&WindowType=${optionDetails.windowType}`,
+        `${BASE_URL}/Inquiry/GetAllInquirySummeryLinesPattern?InquiryID=${inquiryId}&OptionId=${optionId}&WindowType=${windowType}`,
         {
-          method: "GET",
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
-            "Content-Type": "application/json",
           },
         }
       );
-      if (!response.ok) {
-        throw new Error("Failed to fetch Size List");
-      }
+      if (!response.ok) throw new Error("Failed to fetch pattern");
+
       const data = await response.json();
       const pattern = data.result[0];
-      const patternUnitCost = pattern.totalCost / pattern.quantity;
-      setPatternQuantity(pattern.quantity);
-      setPatternTotalCost(pattern.totalCost);
-      setPatternUCost(patternUnitCost);
-      setPatternItem({
-        ...pattern,
-        unitCost: patternUnitCost,
-      });
+
+      const qty = pattern.approvedQuantity ?? 0;
+      const totalCost = pattern.approvedTotalCost ?? 0;
+      const unitCost = qty > 0 ? totalCost / qty : 0;
+
+      setPatternQuantity(qty);
+      setPatternTotalCost(totalCost);
+      setPatternUCost(unitCost);
+      setPatternItem(pattern);
     } catch (error) {
-      console.error("Error fetching Size List:", error);
+      console.error(error);
+    }
+  };
+
+  const fetchQuotationDataList = async (inquiryId, optionId, windowType) => {
+    try {
+      const response = await fetch(
+        `${BASE_URL}/Inquiry/GetInquirySummeryHeaderBYOptionID?InquiryID=${inquiryId}&OptionId=${optionId}&WindowType=${windowType}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      if (!response.ok) throw new Error("Failed to fetch summary");
+
+      const data = await response.json();
+      if (!data.result) return;
+      setTotalCost(data.result.apprvedTotalCost || 0);
+      setRawProfit(data.result.apprvedUnitProfit || 0);
+      setFinalUnitCost(data.result.apprvedUnitCost || 0);
+      setRevenue(data.result.apprvedRevanue || 0);
+      setTotalProfit(data.result.apprvedTotalProfit || 0);
+      setProfitPercentage(data.result.apprvedProfitPercentage || 0);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const updateIsSaved = (value) => {
+    if (onIsSavedChange) {
+      onIsSavedChange(value);
     }
   };
 
   const handleItemUnitCostChange = (index, value) => {
-    Calculation(false);
+    updateIsSaved(false);
     const newItems = [...items];
-    newItems[index].unitCost = parseFloat(value);
-    newItems[index].totalCost = parseFloat(newItems[index].quantity * value);
+    const cost = parseFloat(value) || 0;
+    const tcost = parseFloat(cost) * newItems[index].quantity || 0;
+    newItems[index].approvedUnitCost = cost;
+    newItems[index].approvedTotalCost = tcost;
     setItems(newItems);
-    setChangedItems(newItems);
   };
 
   const handlePatternTotalCostChange = (value) => {
-    Calculation(false);
-    setPatternTotalCost(value);
-    const newUnitCost = value / patternQuantity;
-    const newPatternItem = {
+    updateIsSaved(false);
+    const cost = parseFloat(value) || 0;
+    const unitCost = patternQuantity > 0 ? cost / patternQuantity : 0;
+    setPatternTotalCost(cost);
+    setPatternUCost(unitCost);
+    setPatternItem({
       ...patternItem,
-      totalCost: parseFloat(value),
-      unitCost: parseFloat(newUnitCost),
-    };
-    setPatternUCost(newUnitCost);
-    setPatternItem(newPatternItem);
-  };
-
-  const fetchQuotationDataList = async () => {
-    try {
-      const response = await fetch(
-        `${BASE_URL}/Inquiry/GetInquirySummeryHeaderBYOptionID?InquiryID=${optionDetails.inquiryID}&OptionId=${optionDetails.optionId}&WindowType=${optionDetails.windowType}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch Quotation List");
-      }
-      const data = await response.json();
-      const approved = localStorage.getItem("approveddata");
-      if (data.result) {
-        setRawProfit(
-          approved
-            ? data.result.apprvedUnitProfit
-            : status == "1"
-              ? data.result.apprvedUnitProfit
-              : data.result.unitProfit
-        );
-        setFinalUnitCost(
-          approved
-            ? data.result.apprvedUnitCost
-            : status === "1"
-              ? data.result.apprvedUnitCost
-              : data.result.unitCost
-        );
-        setTotalCost(
-          approved
-            ? data.result.apprvedTotalCost
-            : status === "1"
-              ? data.result.apprvedTotalCost
-              : data.result.totalCost
-        );
-
-        setRawSellingPrice(
-          approved
-            ? data.result.apprvedSellingPrice
-            : status === "1"
-              ? data.result.apprvedSellingPrice
-              : data.result.sellingPrice
-        );
-        setRevenue(
-          approved
-            ? data.result.apprvedRevanue
-            : status === "1"
-              ? data.result.apprvedRevanue
-              : data.result.revanue
-        );
-        setTotalProfit(
-          approved
-            ? data.result.apprvedTotalProfit
-            : status === "1"
-              ? data.result.apprvedTotalProfit
-              : data.result.totalProfit
-        );
-        setProfitPercentage(
-          approved
-            ? data.result.apprvedProfitPercentage
-            : status === "1"
-              ? data.result.apprvedProfitPercentage
-              : data.result.profitPercentage
-        );
-      }
-    } catch (error) {
-      console.error("Error fetching Quotation List:", error);
-    }
+      approvedUnitCost: unitCost,
+      approvedTotalCost: cost,
+    });
   };
 
   const handleProfitChange = (value) => {
-    Calculation(false);
-    const profitValue = parseFloat(value);
-    setRawProfit(value);
-    setProfit(profitValue);
+    updateIsSaved(false);
+    const profitValue = parseFloat(value) || 0;
+    setRawProfit(profitValue);
   };
 
-  const handleCalculate = () => {
-    Calculation(true);
-    const calculatedValues = items.map((item) => ({
-      ...item,
-      totalCost: item.quantity * item.unitCost,
-    }));
-    calculatedValues.push({
-      ...patternItem,
-      totalCost: patternTotalCost,
-      unitCost: patternTotalCost / patternQuantity,
-    });
-    setCalculationValues(calculatedValues);
+  const handleCalculate = async () => {
+    const calculatedValues = [
+      ...items.map((item) => ({
+        ...item,
+        approvedUnitCost: item.approvedUnitCost,
+        approvedTotalCost: item.approvedTotalCost,
+      })),
+      {
+        ...patternItem,
+        approvedTotalCost: patternTotalCost,
+        approvedUnitCost: patternUCost,
+      },
+    ];
+    if (calculatedValues.length > 0) {
+      const allItems = [
+        ...items.map(i => ({ TotalCost: i.approvedTotalCost })),
+        { TotalCost: patternTotalCost },
+      ];
+      computeTotalCost(allItems);
+    }
 
-    fetch(`${BASE_URL}/Inquiry/UpdateSummeryLine`, {
+    updateIsSaved(true);
+
+    await fetch(`${BASE_URL}/Inquiry/UpdateSummeryLine`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -221,62 +194,62 @@ export default function TableData({ status }) {
       },
       body: JSON.stringify(calculatedValues),
     });
-
-    const totalCostSum = calculatedValues.reduce(
-      (acc, item) => acc + item.totalCost,
-      0
-    );
-
-
-    const calcUnitCost = parseFloat(totalCostSum) / patternQuantity;
-    const calcSellingPrice = parseFloat(calcUnitCost) + parseFloat(rawProfit);
-    const calcTotalProfit = parseFloat(rawProfit) * parseFloat(noOfUnits);
-    const calcRev = parseFloat(calcTotalProfit) + parseFloat(totalCostSum);
-
-    const newProfitPercentage = (
-      (rawProfit / (totalCostSum && noOfUnits ? totalCostSum / noOfUnits : 1)) *
-      100
-    ).toFixed(2);
-
-    setTotalCost(totalCostSum);
-    setProfitPercentage(newProfitPercentage);
-    setFinalUnitCost(calcUnitCost);
-    setSellingPrice(calcSellingPrice);
-    setTotalProfit(calcTotalProfit);
-    setRevenue(calcRev);
-
-    const data = {
-      revenue: calcRev,
-      totalProfit: calcTotalProfit,
-      sellingPrice: calcSellingPrice,
-      profitPercentage: newProfitPercentage,
-      unitCost: calcUnitCost,
-      totalCost: totalCostSum,
-      totalUnits: noOfUnits,
-      profit: rawProfit,
-    };
-
-    localStorage.setItem("approveddata", JSON.stringify(data));
   };
 
-  useEffect(() => {
-    handleCalculate();
-    fetchItems();
-    fetchPattern();
-    fetchQuotationDataList();
-    Calculation(true);
-  }, []);
+  const handleSetData = (
+    dataProfit,
+    dataProPercentage,
+    dataSellingPrice,
+    dataTotalProfit,
+    dataRevenue,
+    dataTotalCost,
+    dataUnitCost
+  ) => {
+    const data = {
+      revenue: dataRevenue,
+      totalProfit: dataTotalProfit,
+      sellingPrice: dataSellingPrice,
+      profitPercentage: dataProPercentage,
+      unitCost: dataUnitCost,
+      totalCost: dataTotalCost,
+      totalUnits: patternQuantity,
+      profit: dataProfit,
+    };
+    if (onSummaryChange) {
+      onSummaryChange(data);
+    }
+  };
 
+  const computeTotalCost = (items) => {
+    const itemsTotalCost = items.reduce(
+      (acc, item) => acc + (item.TotalCost || 0),
+      0
+    );
+    const itemUnitCost = noOfUnits > 0 ? itemsTotalCost / noOfUnits : 0;
+    const totalProfit = parseFloat(rawProfit || 0) * noOfUnits;
+    const sellPrice = parseFloat(rawProfit || 0) + parseFloat(itemUnitCost || 0);
+    const revenue = parseFloat(itemsTotalCost) + parseFloat(totalProfit);
+    const profitPercentage =
+      itemUnitCost > 0
+        ? ((parseFloat(sellPrice) - parseFloat(itemUnitCost)) /
+          parseFloat(itemUnitCost)) *
+        100
+        : 0;
 
-
-  const Calculation = (calculated) => {
-    localStorage.setItem("calculated", calculated);
+    setFinalUnitCost(itemUnitCost.toFixed(2));
+    setTotalCost(itemsTotalCost);
+    setTotalProfit(totalProfit);
+    setRevenue(revenue);
+    setSellingPrice(sellPrice);
+    setProfitPercentage(profitPercentage);
+    handleSetData(rawProfit, profitPercentage, sellPrice, totalProfit, revenue,itemsTotalCost,itemUnitCost);
+    updateIsSaved(true);
   };
 
   return (
     <>
       <TableContainer component={Paper}>
-        <Table size="small" aria-label="simple table" className="dark-table">
+        <Table size="small" className="dark-table">
           <TableHead>
             <TableRow>
               <TableCell>Description</TableCell>
@@ -287,48 +260,33 @@ export default function TableData({ status }) {
           </TableHead>
           <TableBody>
             {items.map((item, index) => (
-              <TableRow
-                key={index}
-                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-              >
-                <TableCell component="th" scope="row">
-                  {item.itemName}
-                </TableCell>
+              <TableRow key={index}>
+                <TableCell>{item.itemName}</TableCell>
                 <TableCell>
                   <input
-                    value={item.unitCost}
-                    style={{
-                      width: "60px",
-                      border: "1px solid #e5e5e5",
-                    }}
+                    value={item.approvedUnitCost}
+                    style={{ width: "60px", border: "1px solid #e5e5e5" }}
                     onChange={(e) =>
                       handleItemUnitCostChange(index, e.target.value)
                     }
                   />
                 </TableCell>
-                <TableCell>{item.quantity}</TableCell>
+                <TableCell>{item.approvedQuantity}</TableCell>
                 <TableCell align="right">
-                  {Number(item.totalCost).toFixed(2)}
+                  {Number(item.approvedTotalCost).toFixed(2)}
                 </TableCell>
               </TableRow>
             ))}
-            <TableRow
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell component="th" scope="row">
-                Pattern
-              </TableCell>
+            <TableRow>
+              <TableCell>Pattern</TableCell>
               <TableCell>{patternUCost.toFixed(2)}</TableCell>
               <TableCell>{patternQuantity}</TableCell>
               <TableCell align="right">
                 <input
                   value={patternTotalCost}
-                  style={{
-                    width: "60px",
-                    border: "1px solid #e5e5e5",
-                  }}
+                  style={{ width: "60px", border: "1px solid #e5e5e5" }}
                   onChange={(e) =>
-                    handlePatternTotalCostChange(parseFloat(e.target.value))
+                    handlePatternTotalCostChange(e.target.value)
                   }
                 />
               </TableCell>
@@ -336,36 +294,33 @@ export default function TableData({ status }) {
           </TableBody>
         </Table>
       </TableContainer>
+
       <TableContainer sx={{ mt: 2 }}>
-        <Table size="small" aria-label="simple table" className="dark-table">
+        <Table size="small" className="dark-table">
           <TableHead>
             <TableRow>
-              <TableCell sx={{ color: "#90a4ae" }} colSpan={3}>
+              <TableCell colSpan={3} sx={{ color: "#90a4ae" }}>
                 Total Cost
               </TableCell>
-              <TableCell align="right">
-                {formatCurrency(totalCost)}
-              </TableCell>
+              <TableCell align="right">{formatCurrency(totalCost)}</TableCell>
             </TableRow>
             <TableRow>
               <TableCell sx={{ color: "#90a4ae" }}>No of Units</TableCell>
               <TableCell align="right">{noOfUnits}</TableCell>
               <TableCell sx={{ color: "#90a4ae" }}>Unit Cost</TableCell>
-              <TableCell align="right">{formatCurrency(finalUnitCost)}</TableCell>
+              <TableCell align="right">
+                {formatCurrency(finalUnitCost)}
+              </TableCell>
             </TableRow>
             <TableRow>
               <TableCell sx={{ color: "#90a4ae" }}>Profit</TableCell>
               <TableCell align="right">
                 <input
                   value={rawProfit}
-                  style={{
-                    width: "60px",
-                    border: "1px solid #e5e5e5",
-                  }}
+                  style={{ width: "60px", border: "1px solid #e5e5e5" }}
                   onChange={(e) => handleProfitChange(e.target.value)}
                 />
               </TableCell>
-
               <TableCell sx={{ color: "#90a4ae" }}>Profit (%)</TableCell>
               <TableCell align="right">
                 {formatCurrency(profitPercentage)}
@@ -376,9 +331,10 @@ export default function TableData({ status }) {
               <TableCell align="right">
                 {formatCurrency(sellingPrice)}
               </TableCell>
-
               <TableCell sx={{ color: "#90a4ae" }}>Total Profit</TableCell>
-              <TableCell align="right">{formatCurrency(totalProfit)}</TableCell>
+              <TableCell align="right">
+                {formatCurrency(totalProfit)}
+              </TableCell>
             </TableRow>
             <TableRow>
               <TableCell sx={{ color: "#90a4ae" }} colSpan={3}>
@@ -389,6 +345,7 @@ export default function TableData({ status }) {
           </TableHead>
         </Table>
       </TableContainer>
+
       <Box mt={2}>
         <Button variant="contained" onClick={handleCalculate}>
           Calculate

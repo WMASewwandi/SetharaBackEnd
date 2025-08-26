@@ -74,9 +74,11 @@ export const getSidebarData = (IsGarmentSystem) => {
                 { title: "Orders", path: "/master/orders/", categoryId: 16, isAvailable: true },
                 { title: "Bank", path: "/master/bank/", categoryId: 15, isAvailable: true },
                 { title: "Cash Flow Types", path: "/master/cash-flow/", categoryId: 59, isAvailable: true },
+                { title: "Doctors", path: "/master/doctors/", categoryId: 70, isAvailable: true },
                 { title: "Tasks", path: "/master/tasks/", categoryId: 63, isAvailable: true },
                 { title: "Packages", path: "/master/package/", categoryId: 65, isAvailable: true },
                 { title: "Time Slots", path: "/master/time-slots/", categoryId: 66, isAvailable: true },
+                { title: "Day Type", path: "/master/day-type/", categoryId: 76, isAvailable: true },
             ],
         },
         {
@@ -97,7 +99,7 @@ export const getSidebarData = (IsGarmentSystem) => {
                 {
                     title: "Pending Quotations",
                     path: "/quotations/pending-quotation/",
-                    categoryId: 53,
+                    categoryId: 52,
                     isAvailable: true,
                 },
                 {
@@ -106,9 +108,14 @@ export const getSidebarData = (IsGarmentSystem) => {
                     categoryId: 54,
                     isAvailable: true,
                 },
+                { title: "Sent Quotations", path: "/quotations/sent-list/", categoryId: 71, isAvailable: true },
+                { title: "Proforma Invoice", path: "/quotations/proforma-list/", categoryId: 72, isAvailable: true },
+                { title: "Tech Pack", path: "/quotations/tech-pack/", categoryId: 73, isAvailable: true },
+                { title: "Sample", path: "/quotations/sample/", categoryId: 74, isAvailable: true },
                 { title: "Projects", path: "/production/projects/", categoryId: 53, isAvailable: true },
                 { title: "My Tasks", path: "/production/tasks/", categoryId: 55, isAvailable: true },
                 { title: "Ongoing", path: "/production/ongoing/", categoryId: 56, isAvailable: true },
+                { title: "Follow Up", path: "/production/follow-up/", categoryId: 75, isAvailable: true },
             ],
         },
         {
@@ -126,6 +133,7 @@ export const getSidebarData = (IsGarmentSystem) => {
                 { title: "Stock Dispatch", path: "/inventory/stock-dispatch/", categoryId: 21, isAvailable: true },
                 { title: "Stock Adjustment", path: "/inventory/stock-adjustment/", categoryId: 40, isAvailable: true },
                 { title: "Stock Transfer Note", path: "/inventory/stock-transfer/", categoryId: 69, isAvailable: true },
+                { title: "Goods Return Note", path: "/inventory/grn-return/", categoryId: 77, isAvailable: true },
             ],
         },
         {
